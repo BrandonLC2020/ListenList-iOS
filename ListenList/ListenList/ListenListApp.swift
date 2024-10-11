@@ -6,12 +6,74 @@
 //
 
 import SwiftUI
+import Foundation
+import CryptoKit
+import WebKit
+
+func isLoggedIn() -> Bool {
+    let code = UserDefaults.standard.object(forKey: "code") as? String
+    if code == nil {
+        return false
+    }
+    return true
+}
+
+func generateRandomString(length: Int) -> String {
+    // each hexadecimal character represents 4 bits, so we need 2 hex characters per byte
+    let byteCount = length / 2
+    
+    var bytes = [UInt8](repeating: 0, count: byteCount)
+    let result = SecRandomCopyBytes(kSecRandomDefault, byteCount, &bytes)
+    guard result == errSecSuccess else {
+        fatalError("Failed to generate random bytes: \(result)")
+    }
+    
+    // convert to hex string
+    let hexString = bytes.map { String(format: "%02x", $0) }.joined()
+    let paddedHexString = hexString.padding(toLength: length, withPad: "0", startingAt: 0)
+    return paddedHexString
+}
+
 
 @main
 struct ListenListApp: App {
+    
+    @State var authenticated: Bool = isLoggedIn()
+    var authURL: String = ""
+    
+    init() {
+        self.authURL = getAuthorizationCodeURL()
+    }
+    
+    func getAuthorizationCodeURL() -> String {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "accounts.spotify.com"
+        components.path = "/authorize"
+        let SPOTIFY_API_CLIENT_ID = Bundle.main.object(forInfoDictionaryKey: "SPOTIFY_API_CLIENT_ID") as? String
+
+        let state = generateRandomString(length: 16)
+        let scope = "user-read-private user-read-email user-top-read"
+        let clientId = SPOTIFY_API_CLIENT_ID
+        let responseType = "code"
+        let redirectURI = "https://www.google.com"
+        components.queryItems = [
+            URLQueryItem(name: "state", value: state),
+            URLQueryItem(name: "scope", value: scope),
+            URLQueryItem(name: "response_type", value: responseType),
+            URLQueryItem(name: "redirect_uri", value: redirectURI),
+            URLQueryItem(name: "client_id", value: clientId)
+        ]
+        print(components.string!)
+        return components.string!
+        
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ZStack {
+                AuthorizationView(urlString: self.authURL)
+            }
         }
     }
 }
