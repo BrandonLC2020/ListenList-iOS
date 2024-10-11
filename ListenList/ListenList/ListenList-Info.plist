@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
 	<key>SPOTIFY_API_CLIENT_SECRET</key>
-	<string>$(SPOTIFY_API_CLIENT_SECRET)</string>
+	<string>c7f44f90e2f04689bd213acf1498ac4d</string>
 	<key>SPOTIFY_API_CLIENT_ID</key>
-	<string>$(SPOTIFY_API_CLIENT_ID)</string>
+	<string>dc4910da820648ce8d46f86864804096</string>
 </dict>
 </plist>
