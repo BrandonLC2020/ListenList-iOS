@@ -118,6 +118,11 @@ struct TabUIView: View {
     
     var body: some View {
         TabView {
+            ListenListView()
+                .tabItem {
+                    Image("home")
+                    Text("Home")
+                }
             
         }
         .accentColor(.black)
