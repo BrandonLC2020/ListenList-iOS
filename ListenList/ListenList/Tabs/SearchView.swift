@@ -42,8 +42,6 @@ struct SearchView: View {
                     .pickerStyle(SegmentedPickerStyle())
                     .padding(.all, 10)
                     HStack{
-                        // type filter
-                        
                         // search bar
                         TextField("Search...", text: $searchInput, onEditingChanged: { (edit) in
                             self.isEditing = true
@@ -62,7 +60,14 @@ struct SearchView: View {
                                 while (albumSearchResults.items.isEmpty) {}
                                 sleep(2)
                                 
-                                
+                                for i in 0...albumSearchResults.items.endIndex-1 {
+                                    var artist: [Artist] = []
+                                    for art in albumSearchResults.items[i].artists {
+                                        artist.append(Artist(name: art.name, artistId: art.id))
+                                    }
+                                    self.cards.append(Card(input: .album, media: Media(input: .album(Album(images: albumSearchResults.items[i].images, name: albumSearchResults.items[i].name, release_date: albumSearchResults.items[i].release_date, artists: artist)))))
+                                }
+                                print(self.cards)
                             } else if (searchBy == 1) {
 
                             } else {
