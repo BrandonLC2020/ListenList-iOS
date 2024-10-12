@@ -115,7 +115,7 @@ struct AuthorizationView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Image("AppIcon")
+                Image("Image")
                     .resizable()
                     .cornerRadius(30.0)
                     .scaledToFill()
