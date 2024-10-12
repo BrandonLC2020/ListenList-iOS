@@ -20,6 +20,8 @@ struct CardList: View {
                     SongCard(input: item.input)
                 } else if case .album = item.type {
                     AlbumCard(input: item.input)
+                } else if case .artist = item.type {
+                    ArtistCard(input: item.input)
                 }
             }
         }
