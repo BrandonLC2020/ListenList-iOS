@@ -63,7 +63,7 @@ struct SongCard: View {
                     .cornerRadius(15.0)
                     .frame(maxWidth: 100, maxHeight: 100)
                     .padding([.leading, .trailing])
-                //song title
+                //song title and artist(s) name(s)
                 VStack(alignment: .leading) {
                     Text(song!.name)
                         .bold()
