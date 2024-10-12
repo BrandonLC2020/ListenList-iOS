@@ -29,9 +29,22 @@
 		CA02FA042CB9AE2F0027BD8B /* ListenListUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ListenListUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CA02FA552CBB1C8F0027BD8B /* Exceptions for "ListenList" folder in "ListenList" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CA02F9E92CB9AE2B0027BD8B /* ListenList */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CA02F9EC2CB9AE2B0027BD8B /* ListenList */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CA02FA552CBB1C8F0027BD8B /* Exceptions for "ListenList" folder in "ListenList" target */,
+			);
 			path = ListenList;
 			sourceTree = "<group>";
 		};
@@ -390,6 +403,8 @@
 		};
 		CA02FA0F2CB9AE2F0027BD8B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = CA02F9EC2CB9AE2B0027BD8B /* ListenList */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -399,6 +414,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"ListenList/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ListenList/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -419,6 +435,8 @@
 		};
 		CA02FA102CB9AE2F0027BD8B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = CA02F9EC2CB9AE2B0027BD8B /* ListenList */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -428,6 +446,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"ListenList/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ListenList/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

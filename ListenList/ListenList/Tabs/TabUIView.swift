@@ -120,8 +120,14 @@ struct TabUIView: View {
         TabView {
             ListenListView()
                 .tabItem {
-                    Image("home")
+                    Image(systemName: "play.house.fill")
                     Text("Home")
+                }
+                .navigationTitle("Home")
+            SearchView()
+                .tabItem {
+                    Image(systemName: "magnifyingglass")
+                    Text("Search")
                 }
             
         }
