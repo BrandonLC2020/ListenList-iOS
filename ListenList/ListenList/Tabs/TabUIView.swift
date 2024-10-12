@@ -124,7 +124,7 @@ struct TabUIView: View {
                     Text("Home")
                 }
                 .navigationTitle("Home")
-            SearchView()
+            SearchView(access: access![0], type: access![1])
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
