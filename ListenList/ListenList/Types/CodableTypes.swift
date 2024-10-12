@@ -5,6 +5,26 @@
 //  Created by Brandon Lamer-Connolly on 10/11/24.
 //
     
+struct SongSearchResponse: Codable, Hashable {
+    var href: String
+    var limit: Int
+    var next: String?
+    var offset: Int
+    var previous: String?
+    var total: Int
+    var items: [SongResponse]
+}
+
+struct ArtistSearchResponse: Codable, Hashable {
+    var href: String
+    var limit: Int
+    var next: String?
+    var offset: Int
+    var previous: String?
+    var total: Int
+    var items: [ArtistResponse]
+}
+
 
 struct SongResponse: Codable, Hashable {
     var album: AlbumResponse
