@@ -11,7 +11,7 @@ struct CardList: View {
     
     var results : [Card]
     
-    private let columns = [GridItem()]
+    private let columns = [GridItem(.flexible())]
     
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center, spacing: 10) {

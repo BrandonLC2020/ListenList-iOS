@@ -41,32 +41,32 @@ struct SongCard: Card, View {
                 .cornerRadius(15.0)
                 .blur(radius: 4.2)
                 .scaledToFill()
-                //.scaledToFit()
-                //.frame(width: parentGeo.size.width/1.07, height: parentGeo.size.height/7.5)
-                //.frame(width: geometry.size.width,  height: geometry.size.height)
-                //.frame(width: geometry.size.width/1.07, height: geometry.size.height/7.5)
+                .frame(maxHeight: 150)
                 .clipped()
             }.cornerRadius(15.0)
-            RoundedRectangle(cornerRadius: 15.0).frame(alignment: .center)
-                .foregroundColor(.gray.opacity(0.7))
-                //.frame(width: parentGeo.size.width/1.07, height: parentGeo.size.height/7.5)
-                //.frame(width: geometry.size.width,  height: geometry.size.height)
-                //.frame(width: geometry.size.width/1.07, height: geometry.size.height/7.5)
+            HStack {
+                RoundedRectangle(cornerRadius: 15.0)
+                    .foregroundColor(.gray.opacity(0.7))
+                    .cornerRadius(15.0)
+                    .scaledToFill()
+                    .frame(maxHeight: 150)
+                    .clipped()
+            }.cornerRadius(15.0)
+            
             HStack(alignment: .center) {
                 //rank
                 Text(String(song?.rank ?? Int()))
                     .bold()
-                    //.frame(width:geometry.size.width/16, height:geometry.size.width/40)
                     .padding(.leading)
                 //album cover
                 AsyncImage(url: URL(string: song!.album.images[0].url)) { image in
                     image.resizable()
                 } placeholder: {
                     ProgressView()
-                }
-                //.frame(width: geometry.size.width/5.0, height: geometry.size.width/5.0)
-                .cornerRadius(15.0)
-                .padding(.all)
+                }.aspectRatio(1, contentMode: .fit)
+                    .cornerRadius(15.0)
+                    .frame(maxWidth: 100, maxHeight: 100)
+                    .padding()
                 //song title
                 VStack(alignment: .leading) {
                     Text(song!.name)
@@ -78,8 +78,13 @@ struct SongCard: Card, View {
                 .padding(.trailing)
                 
                 Spacer()
-            }//.padding(.all)
+            }
+            .scaledToFill()
+            .clipped()
         }
+        .frame(maxWidth: 600, maxHeight: 150, alignment: .center)
+        .clipped()
+        .padding([.leading, .trailing], 10)
     }
 }
 
