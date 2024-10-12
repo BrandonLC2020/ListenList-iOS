@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CardList: View {
     
-    var results
+    var results : [Media]
     
     private let columns = [GridItem()]
     
@@ -20,5 +20,5 @@ struct CardList: View {
 }
 
 #Preview {
-    CardList()
+    CardList(results: [])
 }
