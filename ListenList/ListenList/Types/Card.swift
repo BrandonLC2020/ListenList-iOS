@@ -7,7 +7,23 @@
 
 import SwiftUI
 
-protocol Card {
-    var input : Media { get }
-    var id : UUID { get }
+import Foundation
+
+class Card: Identifiable {
+    var type: CardType
+    var input: Media
+    var id: UUID
+    
+    init(input: CardType, media: Media) {
+        self.type = input
+        self.input = media
+        self.id = UUID()
+    }
+}
+
+// Enum to represent different media types
+enum CardType {
+    case song(SongCard)
+    case artist(ArtistCard)
+    case album(AlbumCard)
 }

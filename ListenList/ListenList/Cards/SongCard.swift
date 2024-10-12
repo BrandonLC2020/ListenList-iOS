@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SongCard: Card, View {
+struct SongCard: View {
     var id: UUID
     var input: Media
     var song: Song?
@@ -54,10 +54,6 @@ struct SongCard: Card, View {
             }.cornerRadius(15.0)
             
             HStack(alignment: .center) {
-                //rank
-                Text(String(song?.rank ?? Int()))
-                    .bold()
-                    .padding(.leading)
                 //album cover
                 AsyncImage(url: URL(string: song!.album.images[0].url)) { image in
                     image.resizable()
@@ -66,7 +62,7 @@ struct SongCard: Card, View {
                 }.aspectRatio(1, contentMode: .fit)
                     .cornerRadius(15.0)
                     .frame(maxWidth: 100, maxHeight: 100)
-                    .padding()
+                    .padding([.leading, .trailing])
                 //song title
                 VStack(alignment: .leading) {
                     Text(song!.name)
