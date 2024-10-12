@@ -9,5 +9,5 @@ import SwiftUI
 
 protocol Card {
     var input : Media { get }
-    
+    var id : UUID { get }
 }
