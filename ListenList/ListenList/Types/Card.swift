@@ -23,7 +23,7 @@ class Card: Identifiable {
 
 // Enum to represent different media types
 enum CardType {
-    case song(SongCard)
-    case artist(ArtistCard)
-    case album(AlbumCard)
+    case song
+    case artist
+    case album
 }

@@ -12,6 +12,8 @@ struct SongCard: View {
     var input: Media
     var song: Song?
     
+    let maxHeight: CGFloat = 120
+    
     init(input: Media) {
         self.input = input
         if case let .song(song) = input.input {
@@ -41,7 +43,7 @@ struct SongCard: View {
                 .cornerRadius(15.0)
                 .blur(radius: 4.2)
                 .scaledToFill()
-                .frame(maxHeight: 150)
+                .frame(maxHeight: maxHeight)
                 .clipped()
             }.cornerRadius(15.0)
             HStack {
@@ -49,7 +51,7 @@ struct SongCard: View {
                     .foregroundColor(.gray.opacity(0.7))
                     .cornerRadius(15.0)
                     .scaledToFill()
-                    .frame(maxHeight: 150)
+                    .frame(maxHeight: maxHeight)
                     .clipped()
             }.cornerRadius(15.0)
             
@@ -61,8 +63,8 @@ struct SongCard: View {
                     ProgressView()
                 }.aspectRatio(1, contentMode: .fit)
                     .cornerRadius(15.0)
-                    .frame(maxWidth: 100, maxHeight: 100)
-                    .padding([.leading, .trailing])
+                    .frame(maxWidth: 90, maxHeight: 90)
+                    .padding(.all)
                 //song title and artist(s) name(s)
                 VStack(alignment: .leading) {
                     Text(song!.name)
@@ -78,7 +80,7 @@ struct SongCard: View {
             .scaledToFill()
             .clipped()
         }
-        .frame(maxWidth: 600, maxHeight: 150, alignment: .center)
+        .frame(maxWidth: 600, maxHeight: maxHeight, alignment: .center)
         .clipped()
         .padding([.leading, .trailing], 10)
     }
