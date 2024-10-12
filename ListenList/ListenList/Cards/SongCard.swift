@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SongCard: Card, View {
     var input: Media
-    var song: Song
+    var song: Song?
     
     init(input: Media) {
         self.input = input
@@ -20,7 +20,7 @@ struct SongCard: Card, View {
     
     func artistsToStr() -> String {
         var result : String = ""
-        for artist in song.artists {
+        for artist in song!.artists {
             result += artist.name + ", "
         }
         let endIndex = result.index(result.endIndex, offsetBy: -2)
@@ -31,7 +31,7 @@ struct SongCard: Card, View {
     var body: some View {
         ZStack {
             HStack(alignment: .center) {
-                AsyncImage(url: URL(string: song.album.images[0].url)) { image in
+                AsyncImage(url: URL(string: song!.album.images[0].url)) { image in
                     image.resizable()
                 } placeholder: {
                     ProgressView()
@@ -52,12 +52,12 @@ struct SongCard: Card, View {
                 //.frame(width: geometry.size.width/1.07, height: geometry.size.height/7.5)
             HStack(alignment: .center) {
                 //rank
-                Text(String(song.rank ?? Int()))
+                Text(String(song?.rank ?? Int()))
                     .bold()
                     //.frame(width:geometry.size.width/16, height:geometry.size.width/40)
                     .padding(.leading)
                 //album cover
-                AsyncImage(url: URL(string: song.album.images[0].url)) { image in
+                AsyncImage(url: URL(string: song!.album.images[0].url)) { image in
                     image.resizable()
                 } placeholder: {
                     ProgressView()
@@ -67,7 +67,7 @@ struct SongCard: Card, View {
                 .padding(.all)
                 //song title
                 VStack(alignment: .leading) {
-                    Text(song.name)
+                    Text(song!.name)
                         .bold()
                         .lineLimit(1)
                     Text(artistsToStr())

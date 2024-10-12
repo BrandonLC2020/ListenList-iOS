@@ -17,6 +17,7 @@ struct CardList: View {
         LazyVGrid(columns: columns, alignment: .center, spacing: 10) {
             
         }
+    }
 }
 
 #Preview {
