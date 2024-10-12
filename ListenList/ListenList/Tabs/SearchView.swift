@@ -51,7 +51,18 @@ struct SearchView: View {
                             reset()
                             self.searchOutput = self.searchInput
                             if (searchBy == 0) {
-                                self.searchManager.searchAlbums(query: searchOutput, type: "album", userCompletionHandler: <#T##(AlbumSearchResponse?) -> Void#>)
+                                var albumSearchResults: AlbumSearchResponse = AlbumSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
+                                self.searchManager.searchAlbums(query: searchOutput, type: "album", userCompletionHandler: { user in
+                                    if let user = user {
+                                        albumSearchResults = user
+                                    }
+                                    
+                                })
+                                
+                                while (albumSearchResults.items.isEmpty) {}
+                                sleep(2)
+                                
+                                
                             } else if (searchBy == 1) {
 
                             } else {
