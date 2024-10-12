@@ -74,7 +74,6 @@ class SpotifyAPIManager: ObservableObject {
         let authorizationAccessTokenStr = accessToken
         let authorizationTokenTypeStr = tokenType
         let requestHeaders: [String:String] = ["Authorization" : "\(authorizationTokenTypeStr) \(authorizationAccessTokenStr)"]
-        //print(requestHeaders)
         var request = URLRequest(url: URL(string: urlStr)!)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = requestHeaders
@@ -94,9 +93,7 @@ class SpotifyAPIManager: ObservableObject {
                 return
             }
             do {
-                //print(data)
                 let responseObject: ArtistSearchResponse = try JSONDecoder().decode(ArtistSearchResponse.self, from: data)
-                //print(responseObject)
                 userCompletionHandler(responseObject)
                 
             } catch {
@@ -108,6 +105,5 @@ class SpotifyAPIManager: ObservableObject {
                 }
             }
         }).resume()
-        //print(result)
     }
 }
