@@ -8,9 +8,15 @@
 import SwiftUI
 
 struct CardList: View {
+    
+    var results
+    
+    private let columns = [GridItem()]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+        LazyVGrid(columns: columns, alignment: .center, spacing: 10) {
+            
+        }
 }
 
 #Preview {

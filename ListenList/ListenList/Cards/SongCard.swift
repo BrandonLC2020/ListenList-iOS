@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct SongCard: View {
-    var song: Song
+struct SongCard: Card, View {
+    var input: any Media
     
     func artistsToStr() -> String {
         var result : String = ""
-        for artist in song.artists {
+        for artist in (input as! Song).artists {
             result += artist.name + ", "
         }
         let endIndex = result.index(result.endIndex, offsetBy: -2)
@@ -23,7 +23,7 @@ struct SongCard: View {
     var body: some View {
         ZStack {
             HStack(alignment: .center) {
-                AsyncImage(url: URL(string: song.album.images[0].url)) { image in
+                AsyncImage(url: URL(string: (input as! Song).album.images[0].url)) { image in
                     image.resizable()
                 } placeholder: {
                     ProgressView()
@@ -44,12 +44,12 @@ struct SongCard: View {
                 //.frame(width: geometry.size.width/1.07, height: geometry.size.height/7.5)
             HStack(alignment: .center) {
                 //rank
-                Text(String(song.rank ?? Int()))
+                Text(String((input as! Song).rank ?? Int()))
                     .bold()
                     //.frame(width:geometry.size.width/16, height:geometry.size.width/40)
                     .padding(.leading)
                 //album cover
-                AsyncImage(url: URL(string: song.album.images[0].url)) { image in
+                AsyncImage(url: URL(string: (input as! Song).album.images[0].url)) { image in
                     image.resizable()
                 } placeholder: {
                     ProgressView()
@@ -59,7 +59,7 @@ struct SongCard: View {
                 .padding(.all)
                 //song title
                 VStack(alignment: .leading) {
-                    Text(song.name)
+                    Text((input as! Song).name)
                         .bold()
                         .lineLimit(1)
                     Text(artistsToStr())
@@ -74,5 +74,5 @@ struct SongCard: View {
 }
 
 #Preview {
-    SongCard(song: Song(rank: 1, album: Album(images: [ImageResponse(url: "https://i.scdn.co/image/ab67616d0000b273f76f8deeba5370c98ad38f1c", height: 640, width: 640)], name: "Chemical", release_date: "2023-04-14"), artists: [Artist(name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")], duration_ms: 184013, name: "Chemical", popularity: 88))
+    SongCard(input: Song(rank: 1, album: Album(images: [ImageResponse(url: "https://i.scdn.co/image/ab67616d0000b273f76f8deeba5370c98ad38f1c", height: 640, width: 640)], name: "Chemical", release_date: "2023-04-14"), artists: [Artist(name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")], duration_ms: 184013, name: "Chemical", popularity: 88))
 }
