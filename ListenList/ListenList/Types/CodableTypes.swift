@@ -25,6 +25,7 @@ struct AlbumResponse: Codable, Hashable {
     var images: [ImageResponse]
     var name: String
     var release_date: String
+    var artists: [ArtistResponse]
 }
 
 struct ImageResponse: Codable, Hashable {

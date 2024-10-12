@@ -29,4 +29,5 @@ struct Album: Identifiable, Hashable {
     var images: [ImageResponse]
     var name: String
     var release_date: String
+    var artists: [Artist]
 }
