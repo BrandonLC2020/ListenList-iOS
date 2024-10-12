@@ -9,7 +9,6 @@ import Foundation
 
 struct Song: Identifiable, Hashable {
     let id = UUID()
-    var rank: Int?
     var album: Album
     var artists: [Artist]
     var duration_ms: Int //in milliseconds
@@ -19,7 +18,6 @@ struct Song: Identifiable, Hashable {
 
 struct Artist: Identifiable, Hashable {
     let id = UUID()
-    var rank: Int?
     var images: [ImageResponse]?
     var name: String
     var popularity: Int?
