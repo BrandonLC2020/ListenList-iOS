@@ -10,7 +10,6 @@ import SwiftUI
 struct SongCard: View {
     var song: Song
     
-    
     func artistsToStr() -> String {
         var result : String = ""
         for artist in song.artists {
