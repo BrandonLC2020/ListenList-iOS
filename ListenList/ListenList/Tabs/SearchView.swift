@@ -67,7 +67,7 @@ struct SearchView: View {
                                     }
                                     self.cards.append(Card(input: .album, media: Media(input: .album(Album(images: albumSearchResults.items[i].images, name: albumSearchResults.items[i].name, release_date: albumSearchResults.items[i].release_date, artists: artist)))))
                                 }
-                                print(self.cards)
+                                print(self.cards.count)
                             } else if (searchBy == 1) {
 
                             } else {
@@ -96,7 +96,7 @@ struct SearchView: View {
                             .transition(.move(edge: .trailing))
                         }
                     }
-                    CardList(results: cards)
+                    CardList(results: self.cards)
                 }
                 
                 
