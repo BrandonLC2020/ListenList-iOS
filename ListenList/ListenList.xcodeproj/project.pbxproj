@@ -33,7 +33,9 @@
 		CA02FA552CBB1C8F0027BD8B /* Exceptions for "ListenList" folder in "ListenList" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Config.xcconfig,
 				Info.plist,
+				Sample.xcconfig,
 			);
 			target = CA02F9E92CB9AE2B0027BD8B /* ListenList */;
 		};
@@ -184,7 +186,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					CA02F9E92CB9AE2B0027BD8B = {
 						CreatedOnToolsVersion = 16.0;
