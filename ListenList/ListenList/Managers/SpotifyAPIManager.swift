@@ -22,7 +22,7 @@ class SpotifyAPIManager: ObservableObject {
         self.tokenType = token
     }
     
-    func searchSongs(query: String, type: String, userCompletionHandler: @escaping (SongSearchResponse?) -> Void) {
+    func searchSongs(query: String, type: String, userCompletionHandler: @escaping (SearchResponse?) -> Void) {
         //print("this is the access token: \(accessToken)")
         let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
         let urlStr = "https://api.spotify.com/v1/search?q=\(formattedQuery)&type=\(type)&market=US&limit=50&offset=0"
@@ -50,7 +50,7 @@ class SpotifyAPIManager: ObservableObject {
             }
             do {
                 //print(data)
-                let responseObject: SongSearchResponse = try JSONDecoder().decode(SongSearchResponse.self, from: data)
+                let responseObject: SearchResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
                 //print(responseObject)
                 userCompletionHandler(responseObject)
                 
@@ -67,7 +67,7 @@ class SpotifyAPIManager: ObservableObject {
     }
     
     
-    func searchArtists(query: String, type: String, userCompletionHandler: @escaping (ArtistSearchResponse?) -> Void) {
+    func searchArtists(query: String, type: String, userCompletionHandler: @escaping (SearchResponse?) -> Void) {
         //print("this is the access token: \(accessToken)")
         let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
         let urlStr = "https://api.spotify.com/v1/search?q=\(formattedQuery)&type=\(type)&market=US&limit=50&offset=0"
@@ -93,7 +93,7 @@ class SpotifyAPIManager: ObservableObject {
                 return
             }
             do {
-                let responseObject: ArtistSearchResponse = try JSONDecoder().decode(ArtistSearchResponse.self, from: data)
+                let responseObject: SearchResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
                 userCompletionHandler(responseObject)
                 
             } catch {

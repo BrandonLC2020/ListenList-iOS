@@ -69,6 +69,21 @@ struct SearchView: View {
                                 }
                                 print(self.cards.count)
                             } else if (searchBy == 1) {
+                                var artistSearchResults: ArtistSearchResponse = ArtistSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
+                                self.searchManager.searchArtists(query: searchOutput, type: "artist", userCompletionHandler: { user in
+                                    if let user = user {
+                                        artistSearchResults = user.artists!
+                                    }
+                                    
+                                })
+                                
+                                while (artistSearchResults.items.isEmpty) {}
+                                sleep(2)
+                                
+                                for i in 0...artistSearchResults.items.endIndex-1 {
+                                    self.cards.append(Card(input: .artist, media: Media(input: .artist(Artist(images: artistSearchResults.items[i].images, name: artistSearchResults.items[i].name, popularity: artistSearchResults.items[i].popularity, artistId: artistSearchResults.items[i].id)))))
+                                }
+                                print(self.cards.count)
 
                             } else {
 
