@@ -62,7 +62,7 @@ struct SearchView: View {
                                 
                                 for i in 0...albumSearchResults.items.endIndex-1 {
                                     var artist: [Artist] = []
-                                    for art in albumSearchResults.items[i].artists {
+                                    for art in albumSearchResults.items[i].artists! {
                                         artist.append(Artist(name: art.name, artistId: art.id))
                                     }
                                     self.cards.append(Card(input: .album, media: Media(input: .album(Album(images: albumSearchResults.items[i].images, name: albumSearchResults.items[i].name, release_date: albumSearchResults.items[i].release_date, artists: artist)))))
@@ -86,7 +86,29 @@ struct SearchView: View {
                                 print(self.cards.count)
 
                             } else {
-
+                                var songSearchResults: SongSearchResponse = SongSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
+                                self.searchManager.searchSongs(query: searchOutput, type: "track", userCompletionHandler: { user in
+                                    if let user = user {
+                                        songSearchResults = user.tracks!
+                                    }
+                                    
+                                })
+                                
+                                while (songSearchResults.items.isEmpty) {}
+                                sleep(2)
+                                
+                                for i in 0...songSearchResults.items.endIndex-1 {
+                                    var albumArtist: [Artist] = []
+                                    for art in songSearchResults.items[i].album.artists! {
+                                        albumArtist.append(Artist(name: art.name, artistId: art.id))
+                                    }
+                                    var songArtist: [Artist] = []
+                                    for art in songSearchResults.items[i].artists {
+                                        songArtist.append(Artist(name: art.name, artistId: art.id))
+                                    }
+                                    self.cards.append(Card(input: .song, media: Media(input: .song(Song(album: Album(images: songSearchResults.items[i].album.images, name: songSearchResults.items[i].album.name, release_date: songSearchResults.items[i].album.release_date, artists: albumArtist), artists: songArtist, duration_ms: songSearchResults.items[i].popularity, name:songSearchResults.items[i].name, popularity: songSearchResults.items[i].duration_ms)))))
+                                }
+                                print(self.cards.count)
                             }
                         })
                         .padding(7)
