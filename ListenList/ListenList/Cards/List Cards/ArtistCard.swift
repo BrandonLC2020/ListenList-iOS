@@ -47,14 +47,24 @@ struct ArtistCard: View {
             
             HStack(alignment: .center) {
                 //album cover
-                AsyncImage(url: URL(string: artist!.images![0].url)) { image in
-                    image.resizable()
-                } placeholder: {
-                    ProgressView()
-                }.aspectRatio(1, contentMode: .fit)
+                if artist!.images == nil {
+                    Image(systemName: "music.microphone")
+                        .aspectRatio(1, contentMode: .fit)
+                        .cornerRadius(15.0)
+                        .frame(maxWidth: 90, maxHeight: 90)
+                        .padding(.all)
+                } else {
+                    AsyncImage(url: URL(string: artist!.images![0].url)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    .aspectRatio(1, contentMode: .fit)
                     .cornerRadius(15.0)
                     .frame(maxWidth: 90, maxHeight: 90)
                     .padding(.all)
+                }
+                
                 //song title and artist(s) name(s)
                 VStack(alignment: .leading) {
                     Text(artist!.name)

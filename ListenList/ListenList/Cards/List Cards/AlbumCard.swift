@@ -57,14 +57,22 @@ struct AlbumCard: View {
             
             HStack(alignment: .center) {
                 //album cover
-                AsyncImage(url: URL(string: album!.images[0].url)) { image in
-                    image.resizable()
-                } placeholder: {
-                    ProgressView()
-                }.aspectRatio(1, contentMode: .fit)
-                    .cornerRadius(15.0)
-                    .frame(maxWidth: 90, maxHeight: 90)
-                    .padding(.all)
+                if album!.images.isEmpty {
+                    Image(systemName: "music.quarternote.3")
+                        .aspectRatio(1, contentMode: .fit)
+                        .cornerRadius(15.0)
+                        .frame(maxWidth: 90, maxHeight: 90)
+                        .padding(.all)
+                } else {
+                    AsyncImage(url: URL(string: album!.images[0].url)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        ProgressView()
+                    }.aspectRatio(1, contentMode: .fit)
+                        .cornerRadius(15.0)
+                        .frame(maxWidth: 90, maxHeight: 90)
+                        .padding(.all)
+                }
                 //song title and artist(s) name(s)
                 VStack(alignment: .leading) {
                     Text(album!.name)
