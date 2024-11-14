@@ -52,7 +52,7 @@ struct SearchView: View {
                                 var albumSearchResults: AlbumSearchResponse = AlbumSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
                                 self.searchManager.searchAlbums(query: searchOutput, type: "album", userCompletionHandler: { user in
                                     if let user = user {
-                                        albumSearchResults = user
+                                        albumSearchResults = user.albums!
                                     }
                                     
                                 })

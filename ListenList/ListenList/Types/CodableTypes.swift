@@ -25,6 +25,12 @@ struct ArtistSearchResponse: Codable, Hashable {
     var items: [ArtistResponse]
 }
 
+struct SearchResponse: Codable, Hashable {
+    var albums: AlbumSearchResponse?
+    var tracks: SongSearchResponse?
+    var artists: ArtistSearchResponse?
+}
+
 struct AlbumSearchResponse: Codable, Hashable {
     var href: String
     var limit: Int

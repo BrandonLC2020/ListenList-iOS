@@ -107,7 +107,7 @@ class SpotifyAPIManager: ObservableObject {
         }).resume()
     }
         
-    func searchAlbums(query: String, type: String, userCompletionHandler: @escaping (AlbumSearchResponse?) -> Void) {
+    func searchAlbums(query: String, type: String, userCompletionHandler: @escaping (SearchResponse?) -> Void) {
         //print("this is the access token: \(accessToken)")
         let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
         let urlStr = "https://api.spotify.com/v1/search?q=\(formattedQuery)&type=\(type)&market=US&limit=50&offset=0"
@@ -133,7 +133,8 @@ class SpotifyAPIManager: ObservableObject {
                 return
             }
             do {
-                let responseObject: AlbumSearchResponse = try JSONDecoder().decode(AlbumSearchResponse.self, from: data)
+                print("made it here")
+                let responseObject: SearchResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
                 userCompletionHandler(responseObject)
                 
             } catch {
