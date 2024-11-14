@@ -70,8 +70,13 @@ struct AlbumCard: View {
                     Text(album!.name)
                         .bold()
                         .lineLimit(1)
+                        .frame(maxWidth: 220, alignment: .leading)
+                        .truncationMode(.tail)
+                        
                     Text(artistsToStr())
                         .lineLimit(1)
+                        .frame(maxWidth: 220, alignment: .leading)
+                        .truncationMode(.tail)
                 }
                 .padding(.trailing)
                 
