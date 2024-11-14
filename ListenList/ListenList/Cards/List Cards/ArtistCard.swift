@@ -60,6 +60,8 @@ struct ArtistCard: View {
                     Text(artist!.name)
                         .bold()
                         .lineLimit(2)
+                        .frame(maxWidth: 220, alignment: .leading)
+                        .truncationMode(.tail)
                 }
                 .padding(.trailing)
                 
