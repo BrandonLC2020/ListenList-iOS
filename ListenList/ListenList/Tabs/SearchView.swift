@@ -11,7 +11,7 @@ struct SearchView: View {
     @State var searchManager : SpotifyAPIManager
     var accessToken : String
     var tokenType : String
-    @State var cards : [Card]
+    @State var cards = [Card]()
     @State var searchBy = 0
     @State var searchInput: String = ""
     @State var searchOutput: String = ""
@@ -21,11 +21,11 @@ struct SearchView: View {
         self.accessToken = access
         self.tokenType = type
         self.searchManager = SpotifyAPIManager(access: access, token: type)
-        self.cards = []
+        self.cards = [Card]()
     }
     
     func reset() {
-        self.cards = []
+        self.cards = [Card]()
         //self.searchManager = SpotifyAPIManager(access: self.accessToken, token: self.tokenType)
 
     }
@@ -46,7 +46,8 @@ struct SearchView: View {
                         TextField("Search...", text: $searchInput, onEditingChanged: { (edit) in
                             self.isEditing = true
                         }, onCommit: {
-                            self.cards = []
+                            reset()
+                            self.isEditing = false
                             self.searchOutput = self.searchInput
                             if (searchBy == 0) {
                                 var albumSearchResults: AlbumSearchResponse = AlbumSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
@@ -124,7 +125,7 @@ struct SearchView: View {
                                 self.isEditing = false
                                 self.searchInput = ""
                                 self.searchOutput = ""
-                                self.cards = []
+                                reset()
                             }) {
                                 Text("Cancel")
                             }
