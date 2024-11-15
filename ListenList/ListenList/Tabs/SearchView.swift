@@ -26,7 +26,7 @@ struct SearchView: View {
     
     func reset() {
         self.cards = []
-        self.searchManager = SpotifyAPIManager(access: self.accessToken, token: self.tokenType)
+        //self.searchManager = SpotifyAPIManager(access: self.accessToken, token: self.tokenType)
 
     }
     
