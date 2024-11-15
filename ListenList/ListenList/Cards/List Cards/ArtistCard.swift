@@ -25,7 +25,7 @@ struct ArtistCard: View {
     var body: some View {
         ZStack {
             HStack(alignment: .center) {
-                if artist!.images == nil {
+                if artist!.images == nil || ((artist!.images?.isEmpty) != nil && artist!.images?.isEmpty == true) {
                     Image(systemName: "music.microphone")
                     .cornerRadius(15.0)
                     .blur(radius: 4.2)
@@ -56,7 +56,7 @@ struct ArtistCard: View {
             
             HStack(alignment: .center) {
                 //album cover
-                if artist!.images == nil {
+                if artist!.images == nil || ((artist!.images?.isEmpty) != nil && artist!.images?.isEmpty == true) {
                     Image(systemName: "music.microphone")
                         .aspectRatio(1, contentMode: .fit)
                         .cornerRadius(15.0)
