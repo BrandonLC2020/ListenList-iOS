@@ -46,7 +46,7 @@ struct SearchView: View {
                         TextField("Search...", text: $searchInput, onEditingChanged: { (edit) in
                             self.isEditing = true
                         }, onCommit: {
-                            reset()
+                            self.cards = []
                             self.searchOutput = self.searchInput
                             if (searchBy == 0) {
                                 var albumSearchResults: AlbumSearchResponse = AlbumSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
@@ -124,8 +124,7 @@ struct SearchView: View {
                                 self.isEditing = false
                                 self.searchInput = ""
                                 self.searchOutput = ""
-                                reset()
-                                
+                                self.cards = []
                             }) {
                                 Text("Cancel")
                             }
