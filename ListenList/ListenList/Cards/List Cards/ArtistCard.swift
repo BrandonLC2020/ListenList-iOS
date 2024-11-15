@@ -25,16 +25,25 @@ struct ArtistCard: View {
     var body: some View {
         ZStack {
             HStack(alignment: .center) {
-                AsyncImage(url: URL(string: artist!.images![0].url)) { image in
-                    image.resizable()
-                } placeholder: {
-                    ProgressView()
+                if artist!.images == nil {
+                    Image(systemName: "music.microphone")
+                    .cornerRadius(15.0)
+                    .blur(radius: 4.2)
+                    .scaledToFill()
+                    .frame(maxHeight: maxHeight)
+                    .clipped()
+                } else {
+                    AsyncImage(url: URL(string: artist!.images![0].url)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    .cornerRadius(15.0)
+                    .blur(radius: 4.2)
+                    .scaledToFill()
+                    .frame(maxHeight: maxHeight)
+                    .clipped()
                 }
-                .cornerRadius(15.0)
-                .blur(radius: 4.2)
-                .scaledToFill()
-                .frame(maxHeight: maxHeight)
-                .clipped()
             }.cornerRadius(15.0)
             HStack {
                 RoundedRectangle(cornerRadius: 15.0)

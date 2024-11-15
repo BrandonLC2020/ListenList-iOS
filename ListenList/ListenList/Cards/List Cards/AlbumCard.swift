@@ -35,16 +35,25 @@ struct AlbumCard: View {
     var body: some View {
         ZStack {
             HStack(alignment: .center) {
-                AsyncImage(url: URL(string: album!.images[0].url)) { image in
-                    image.resizable()
-                } placeholder: {
-                    ProgressView()
+                if album!.images.isEmpty {
+                    Image(systemName: "music.quarternote.3")
+                    .cornerRadius(15.0)
+                    .blur(radius: 4.2)
+                    .scaledToFill()
+                    .frame(maxHeight: maxHeight)
+                    .clipped()
+                } else {
+                    AsyncImage(url: URL(string: album!.images[0].url)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    .cornerRadius(15.0)
+                    .blur(radius: 4.2)
+                    .scaledToFill()
+                    .frame(maxHeight: maxHeight)
+                    .clipped()
                 }
-                .cornerRadius(15.0)
-                .blur(radius: 4.2)
-                .scaledToFill()
-                .frame(maxHeight: maxHeight)
-                .clipped()
             }.cornerRadius(15.0)
             HStack {
                 RoundedRectangle(cornerRadius: 15.0)
