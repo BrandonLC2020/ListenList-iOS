@@ -27,9 +27,9 @@ struct SearchView: View {
         defer { isLoading = false } // Ensure loading state resets
 
         switch searchBy {
-        case 0: await searchAlbums()
-        case 1: await searchArtists()
-        default: await searchSongs()
+            case 0: await searchAlbums()
+            case 1: await searchArtists()
+            default: await searchSongs()
         }
     }
     
@@ -80,6 +80,8 @@ struct SearchView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding()
+                    
+                    Text(searchText).padding()
                     
                     HStack {
                         TextField("Search...", text: $searchText)
