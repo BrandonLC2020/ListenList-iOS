@@ -22,130 +22,39 @@ class SpotifyAPIManager: ObservableObject {
         self.tokenType = token
     }
     
-    func searchSongs(query: String, type: String, userCompletionHandler: @escaping (SearchResponse?) -> Void) {
-        //print("this is the access token: \(accessToken)")
+    func search(query: String, type: String) async throws -> SearchResponse? {
+        // Format the query
         let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
         let urlStr = "https://api.spotify.com/v1/search?q=\(formattedQuery)&type=\(type)&market=US&limit=50&offset=0"
         let authorizationAccessTokenStr = accessToken
         let authorizationTokenTypeStr = tokenType
-        let requestHeaders: [String:String] = ["Authorization" : "\(authorizationTokenTypeStr) \(authorizationAccessTokenStr)"]
-        //print(requestHeaders)
-        var request = URLRequest(url: URL(string: urlStr)!)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = requestHeaders
-        URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
-            guard
-                let data = data,
-                let response = response as? HTTPURLResponse,
-                error == nil
-            else {
-                print("error", error ?? URLError(.badServerResponse))
-                return
-            }
-            
-            guard (200 ... 299) ~= response.statusCode else {
-                print("statusCode should be 2xx, but is \(response.statusCode)")
-                print("response = \(response)")
-                return
-            }
-            do {
-                //print(data)
-                let responseObject: SearchResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
-                //print(responseObject)
-                userCompletionHandler(responseObject)
-                
-            } catch {
-                print(error) // parsing error
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("responseString = \(responseString)")
-                } else {
-                    print("unable to parse response as string")
-                }
-            }
-        }).resume()
-        //print(result)
-    }
-    
-    
-    func searchArtists(query: String, type: String, userCompletionHandler: @escaping (SearchResponse?) -> Void) {
-        //print("this is the access token: \(accessToken)")
-        let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
-        let urlStr = "https://api.spotify.com/v1/search?q=\(formattedQuery)&type=\(type)&market=US&limit=50&offset=0"
-        let authorizationAccessTokenStr = accessToken
-        let authorizationTokenTypeStr = tokenType
-        let requestHeaders: [String:String] = ["Authorization" : "\(authorizationTokenTypeStr) \(authorizationAccessTokenStr)"]
-        var request = URLRequest(url: URL(string: urlStr)!)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = requestHeaders
-        URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
-            guard
-                let data = data,
-                let response = response as? HTTPURLResponse,
-                error == nil
-            else {
-                print("error", error ?? URLError(.badServerResponse))
-                return
-            }
-            
-            guard (200 ... 299) ~= response.statusCode else {
-                print("statusCode should be 2xx, but is \(response.statusCode)")
-                print("response = \(response)")
-                return
-            }
-            do {
-                let responseObject: SearchResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
-                userCompletionHandler(responseObject)
-                
-            } catch {
-                print(error) // parsing error
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("responseString = \(responseString)")
-                } else {
-                    print("unable to parse response as string")
-                }
-            }
-        }).resume()
-    }
+        let requestHeaders: [String: String] = ["Authorization": "\(authorizationTokenTypeStr) \(authorizationAccessTokenStr)"]
         
-    func searchAlbums(query: String, type: String, userCompletionHandler: @escaping (SearchResponse?) -> Void) {
-        //print("this is the access token: \(accessToken)")
-        let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
-        let urlStr = "https://api.spotify.com/v1/search?q=\(formattedQuery)&type=\(type)&market=US&limit=50&offset=0"
-        let authorizationAccessTokenStr = accessToken
-        let authorizationTokenTypeStr = tokenType
-        let requestHeaders: [String:String] = ["Authorization" : "\(authorizationTokenTypeStr) \(authorizationAccessTokenStr)"]
-        var request = URLRequest(url: URL(string: urlStr)!)
+        // Create the URL request
+        guard let url = URL(string: urlStr) else {
+            throw URLError(.badURL)
+        }
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = requestHeaders
-        URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
-            guard
-                let data = data,
-                let response = response as? HTTPURLResponse,
-                error == nil
-            else {
-                print("error", error ?? URLError(.badServerResponse))
-                return
+        
+        do {
+            // Perform the network call asynchronously
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Check for a valid HTTP response
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                throw URLError(.badServerResponse)
             }
             
-            guard (200 ... 299) ~= response.statusCode else {
-                print("statusCode should be 2xx, but is \(response.statusCode)")
-                print("response = \(response)")
-                return
-            }
-            do {
-                print("made it here")
-                let responseObject: SearchResponse = try JSONDecoder().decode(SearchResponse.self, from: data)
-                userCompletionHandler(responseObject)
-                
-            } catch {
-                print(error) // parsing error
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("responseString = \(responseString)")
-                } else {
-                    print("unable to parse response as string")
-                }
-            }
-        }).resume()
+            // Decode the response into `SearchResponse`
+            let responseObject = try JSONDecoder().decode(SearchResponse.self, from: data)
+            return responseObject
+            
+        } catch {
+            // Handle errors
+            print("Error occurred during the search: \(error)")
+            throw error
+        }
     }
-
 }

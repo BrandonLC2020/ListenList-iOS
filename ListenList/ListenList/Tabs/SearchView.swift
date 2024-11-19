@@ -1,147 +1,119 @@
-//
-//  SearchView.swift
-//  ListenList
-//
-//  Created by Brandon Lamer-Connolly on 10/11/24.
-//
-
 import SwiftUI
 
 struct SearchView: View {
-    @State var searchManager : SpotifyAPIManager
-    var accessToken : String
-    var tokenType : String
+    @State var searchManager: SpotifyAPIManager
+    var accessToken: String
+    var tokenType: String
     @State var cards = [Card]()
     @State var searchBy = 0
-    @State var searchInput: String = ""
-    @State var searchOutput: String = ""
-    @State var isEditing = false
+    @State var searchText: String = ""
+    @State var isLoading = false
+    @FocusState private var isTextFieldFocused: Bool // Focus management for TextField
     
     init(access: String, type: String) {
         self.accessToken = access
         self.tokenType = type
         self.searchManager = SpotifyAPIManager(access: access, token: type)
-        self.cards = [Card]()
+        self.cards = []
     }
     
     func reset() {
-        self.cards = [Card]()
-        //self.searchManager = SpotifyAPIManager(access: self.accessToken, token: self.tokenType)
+        self.cards = []
+    }
+    
+    func performSearch() async {
+        reset()
+        isLoading = true
+        defer { isLoading = false } // Ensure loading state resets
 
+        switch searchBy {
+        case 0: await searchAlbums()
+        case 1: await searchArtists()
+        default: await searchSongs()
+        }
+    }
+    
+    func searchAlbums() async {
+        if let albumSearchResults = try? await searchManager.search(query: searchText, type: "album"),
+           let albums = albumSearchResults.albums {
+            DispatchQueue.main.async {
+                self.cards = albums.items.map { album in
+                    let artists = album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
+                    return Card(input: .album, media: Media(input: .album(Album(images: album.images, name: album.name, release_date: album.release_date, artists: artists))))
+                }
+            }
+        }
+    }
+    
+    func searchSongs() async {
+        if let songSearchResults = try? await searchManager.search(query: searchText, type: "track"),
+           let songs = songSearchResults.tracks {
+            DispatchQueue.main.async {
+                self.cards = songs.items.map { song in
+                    let albumArtists = song.album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
+                    let songArtists = song.artists.map { Artist(name: $0.name, artistId: $0.id) }
+                    return Card(input: .song, media: Media(input: .song(Song(album: Album(images: song.album.images, name: song.album.name, release_date: song.album.release_date, artists: albumArtists), artists: songArtists, duration_ms: song.duration_ms, name: song.name, popularity: song.popularity))))
+                }
+            }
+        }
+    }
+    
+    func searchArtists() async {
+        if let artistSearchResults = try? await searchManager.search(query: searchText, type: "artist"),
+           let artists = artistSearchResults.artists {
+            DispatchQueue.main.async {
+                self.cards = artists.items.map { artist in
+                    return Card(input: .artist, media: Media(input: .artist(Artist(images: artist.images, name: artist.name, popularity: artist.popularity, artistId: artist.id))))
+                }
+            }
+        }
     }
     
     var body: some View {
         NavigationView {
-            ScrollView() {
-                VStack{
-                    Picker(selection: $searchBy, label: Text("SearchFilter")) {
+            ScrollView{
+                VStack {
+                    Picker(selection: $searchBy, label: Text("Search Filter")) {
                         Text("Album").tag(0)
                         Text("Artist").tag(1)
                         Text("Song").tag(2)
                     }
                     .pickerStyle(SegmentedPickerStyle())
-                    .padding(.all, 10)
-                    HStack{
-                        // search bar
-                        TextField("Search...", text: $searchInput, onEditingChanged: { (edit) in
-                            self.isEditing = true
-                        }, onCommit: {
-                            reset()
-                            self.isEditing = false
-                            self.searchOutput = self.searchInput
-                            if (searchBy == 0) {
-                                var albumSearchResults: AlbumSearchResponse = AlbumSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
-                                self.searchManager.searchAlbums(query: searchOutput, type: "album", userCompletionHandler: { user in
-                                    if let user = user {
-                                        albumSearchResults = user.albums!
-                                    }
-                                    
-                                })
-                                
-                                while (albumSearchResults.items.isEmpty) {}
-                                sleep(2)
-                                
-                                for i in 0...albumSearchResults.items.endIndex-1 {
-                                    var artist: [Artist] = []
-                                    for art in albumSearchResults.items[i].artists! {
-                                        artist.append(Artist(name: art.name, artistId: art.id))
-                                    }
-                                    self.cards.append(Card(input: .album, media: Media(input: .album(Album(images: albumSearchResults.items[i].images, name: albumSearchResults.items[i].name, release_date: albumSearchResults.items[i].release_date, artists: artist)))))
+                    .padding()
+                    
+                    HStack {
+                        TextField("Search...", text: $searchText)
+                            .focused($isTextFieldFocused)
+                            .onSubmit {
+                                Task {
+                                    await performSearch()
                                 }
-                                print(self.cards.count)
-                            } else if (searchBy == 1) {
-                                var artistSearchResults: ArtistSearchResponse = ArtistSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
-                                self.searchManager.searchArtists(query: searchOutput, type: "artist", userCompletionHandler: { user in
-                                    if let user = user {
-                                        artistSearchResults = user.artists!
-                                    }
-                                    
-                                })
-                                
-                                while (artistSearchResults.items.isEmpty) {}
-                                sleep(2)
-                                
-                                for i in 0...artistSearchResults.items.endIndex-1 {
-                                    self.cards.append(Card(input: .artist, media: Media(input: .artist(Artist(images: artistSearchResults.items[i].images, name: artistSearchResults.items[i].name, popularity: artistSearchResults.items[i].popularity, artistId: artistSearchResults.items[i].id)))))
-                                }
-                                print(self.cards.count)
-
-                            } else {
-                                var songSearchResults: SongSearchResponse = SongSearchResponse(href: "", limit: 0, offset: 0, total: 0, items: [])
-                                self.searchManager.searchSongs(query: searchOutput, type: "track", userCompletionHandler: { user in
-                                    if let user = user {
-                                        songSearchResults = user.tracks!
-                                    }
-                                    
-                                })
-                                
-                                while (songSearchResults.items.isEmpty) {}
-                                sleep(2)
-                                
-                                for i in 0...songSearchResults.items.endIndex-1 {
-                                    var albumArtist: [Artist] = []
-                                    for art in songSearchResults.items[i].album.artists! {
-                                        albumArtist.append(Artist(name: art.name, artistId: art.id))
-                                    }
-                                    var songArtist: [Artist] = []
-                                    for art in songSearchResults.items[i].artists {
-                                        songArtist.append(Artist(name: art.name, artistId: art.id))
-                                    }
-                                    self.cards.append(Card(input: .song, media: Media(input: .song(Song(album: Album(images: songSearchResults.items[i].album.images, name: songSearchResults.items[i].album.name, release_date: songSearchResults.items[i].album.release_date, artists: albumArtist), artists: songArtist, duration_ms: songSearchResults.items[i].popularity, name:songSearchResults.items[i].name, popularity: songSearchResults.items[i].duration_ms)))))
-                                }
-                                print(self.cards.count)
                             }
-                        })
-                        .padding(7)
-                        .padding(.horizontal, 25)
-                        .background(Color(.systemGray4))
-                        .cornerRadius(8)
-                        .padding(.horizontal, 10)
-                        .onTapGesture {
-                            self.isEditing = true
-                        }
-                        if searchInput.count != 0 {
-                            Button(action: {
-                                self.isEditing = false
-                                self.searchInput = ""
-                                self.searchOutput = ""
+                            .padding(7)
+                            .padding(.horizontal, 25)
+                            .background(Color(.systemGray4))
+                            .cornerRadius(8)
+                            .padding(.horizontal, 10)
+                        
+                        if !searchText.isEmpty {
+                            Button("Cancel") {
+                                searchText = ""
                                 reset()
-                            }) {
-                                Text("Cancel")
+                                isTextFieldFocused = false // Dismiss keyboard
                             }
+                            .foregroundColor(.blue)
                             .padding(.trailing, 10)
-                            .transition(.move(edge: .trailing))
                         }
                     }
-                    CardList(results: self.cards)
+                    
+                    if isLoading {
+                        ProgressView("Searching...").padding()
+                    }
+                    
+                    CardList(results: cards)
                 }
-                
-                
-            }.navigationTitle("Search")
+            }
+            .navigationTitle("Search")
         }
     }
 }
-
-//#Preview {
-//    SearchView()
-//}
