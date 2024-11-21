@@ -4,10 +4,10 @@ struct SearchView: View {
     var searchManager: SpotifyAPIManager
     var accessToken: String
     var tokenType: String
-    @State var cards = [Card]()
-    @State var searchBy = 0
+    @State private var cards = [Card]()
+    @State private var searchBy = 0
     @State private var searchText: String = ""
-    @State var isLoading = false
+    @State private var isLoading = false
     @FocusState private var isTextFieldFocused: Bool // Focus management for TextField
     
     init(access: String, type: String) {
@@ -18,10 +18,10 @@ struct SearchView: View {
     }
     
     func performSearch() async -> [Card] {
-        isLoading = true
-        defer { isLoading = false } // Ensure loading state resets
+        self.isLoading = true
+        defer { self.isLoading = false } // Ensure loading state resets
         
-        switch searchBy {
+        switch self.searchBy {
             case 0: return await searchAlbums()
             case 1: return await searchArtists()
             default: return await searchSongs()
@@ -69,30 +69,30 @@ struct SearchView: View {
     }
     
     func startSearch() async {
-        guard !searchText.isEmpty else { return }
+        guard !self.searchText.isEmpty else { return }
 
         // Clear previous state
         DispatchQueue.main.async {
-            isLoading = true
-            cards = [] // Clear previous results
-            isTextFieldFocused = false // Dismiss keyboard
+            self.isLoading = true
+            self.cards = [] // Clear previous results
+            self.isTextFieldFocused = false // Dismiss keyboard
         }
 
         // Perform search and handle results
         let results: [Card] = await performSearch()
         DispatchQueue.main.async {
-            isLoading = false // Stop loading
-            cards = results // Update results
+            self.isLoading = false // Stop loading
+            self.cards = results // Update results
         }
     }
 
     func resetSearch() {
         // Reset all states explicitly
         DispatchQueue.main.async {
-            searchText = ""
-            cards = []
-            isLoading = false
-            isTextFieldFocused = false // Clear keyboard focus
+            self.searchText = ""
+            self.cards = []
+            self.isLoading = false
+            self.isTextFieldFocused = false // Clear keyboard focus
         }
     }
 
@@ -101,7 +101,7 @@ struct SearchView: View {
         NavigationView {
             ScrollView {
                 VStack {
-                    Picker(selection: $searchBy, label: Text("Search Filter")) {
+                    Picker(selection: self.$searchBy, label: Text("Search Filter")) {
                         Text("Album").tag(0)
                         Text("Artist").tag(1)
                         Text("Song").tag(2)
@@ -112,7 +112,7 @@ struct SearchView: View {
                     Text(searchText).padding()
                     
                     HStack {
-                        TextField("Search...", text: $searchText)
+                        TextField("Search...", text: self.$searchText)
                             .focused($isTextFieldFocused)
                             .onSubmit {
                                 Task {
