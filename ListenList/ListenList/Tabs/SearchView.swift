@@ -71,30 +71,26 @@ struct SearchView: View {
     func startSearch() async {
         guard !self.searchText.isEmpty else { return }
 
-        // Clear previous state
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.cards = [] // Clear previous results
-            self.isTextFieldFocused = false // Dismiss keyboard
-        }
+        self.isLoading = true
+        self.cards = [] // Clear previous results
+        self.isTextFieldFocused = false // Dismiss keyboard
 
         // Perform search and handle results
         let results: [Card] = await performSearch()
-        DispatchQueue.main.async {
-            self.isLoading = false // Stop loading
-            self.cards = results // Update results
-        }
+        
+        self.isLoading = false // Stop loading
+        self.cards = results // Update results
     }
+
 
     func resetSearch() {
         // Reset all states explicitly
-        DispatchQueue.main.async {
-            self.searchText = ""
-            self.cards = []
-            self.isLoading = false
-            self.isTextFieldFocused = false // Clear keyboard focus
-        }
+        searchText = ""
+        cards = []
+        isLoading = false
+        isTextFieldFocused = false // Clear keyboard focus
     }
+
 
 
     var body: some View {
