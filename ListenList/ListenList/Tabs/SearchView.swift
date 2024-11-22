@@ -113,6 +113,9 @@ struct SearchView: View {
                             .onSubmit {
                                 Task {
                                     await startSearch()
+                                    print(isTextFieldFocused)
+                                    print(searchText)
+                                    print(isLoading)
                                 }
                             }
                             .padding(7)
@@ -120,6 +123,9 @@ struct SearchView: View {
                             .background(Color(.systemGray4))
                             .cornerRadius(8)
                             .padding(.horizontal, 10)
+                            .onTapGesture {
+                                isTextFieldFocused = true
+                            }
                         
                         if !searchText.isEmpty {
                             Button("Cancel") {
