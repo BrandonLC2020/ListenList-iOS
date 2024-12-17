@@ -17,57 +17,68 @@ struct SearchView: View {
         self.cards = []
     }
     
+    @MainActor
     func performSearch() async -> [Card] {
         self.isLoading = true
-        defer { self.isLoading = false } // Ensure loading state resets
-        
+        defer { self.isLoading = false }
+
         switch self.searchBy {
             case 0: return await searchAlbums()
             case 1: return await searchArtists()
             default: return await searchSongs()
         }
     }
-    
+
     func searchAlbums() async -> [Card] {
-        var results = [Card]()
-        if let albumSearchResults = try? await searchManager.search(query: searchText, type: "album"),
-           let albums = albumSearchResults.albums {
-                results = albums.items.map { album in
-                let artists = album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
-                return Card(input: .album, media: Media(input: .album(Album(images: album.images, name: album.name, release_date: album.release_date, artists: artists))))
+        do {
+            if let albumSearchResults = try await searchManager.search(query: searchText, type: "album"),
+               let albums = albumSearchResults.albums {
+                return albums.items.map { album in
+                    let artists = album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
+                    return Card(input: .album, media: Media(input: .album(Album(images: album.images, name: album.name, release_date: album.release_date, artists: artists))))
+                }
             }
+        } catch {
+            print("Error during album search: \(error)")
         }
-        return results
+        return []
     }
-    
+
     func searchSongs() async -> [Card] {
-        var results = [Card]()
-        if let songSearchResults = try? await searchManager.search(query: searchText, type: "track"),
-           let songs = songSearchResults.tracks {
+        do {
+            if let songSearchResults = try await searchManager.search(query: searchText, type: "track"),
+               let songs = songSearchResults.tracks {
                 
-                results = songs.items.map { song in
-                let albumArtists = song.album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
-                let songArtists = song.artists.map { Artist(name: $0.name, artistId: $0.id) }
-                return Card(input: .song, media: Media(input: .song(Song(album: Album(images: song.album.images, name: song.album.name, release_date: song.album.release_date, artists: albumArtists), artists: songArtists, duration_ms: song.duration_ms, name: song.name, popularity: song.popularity))))
-                
+                return songs.items.map { song in
+                    let albumArtists = song.album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
+                    let songArtists = song.artists.map { Artist(name: $0.name, artistId: $0.id) }
+                    return Card(input: .song, media: Media(input: .song(Song(album: Album(images: song.album.images, name: song.album.name, release_date: song.album.release_date, artists: albumArtists), artists: songArtists, duration_ms: song.duration_ms, name: song.name, popularity: song.popularity))))
+                    
+                }
             }
+        } catch {
+            print("Error during song search: \(error)")
         }
-        return results
+        return []
     }
     
     func searchArtists() async -> [Card] {
-        var results = [Card]()
-        if let artistSearchResults = try? await searchManager.search(query: searchText, type: "artist"),
-           let artists = artistSearchResults.artists {
-                
-                results = artists.items.map { artist in
-                return Card(input: .artist, media: Media(input: .artist(Artist(images: artist.images, name: artist.name, popularity: artist.popularity, artistId: artist.id))))
-                
+        do {
+            if let artistSearchResults = try await searchManager.search(query: searchText, type: "artist"),
+               let artists = artistSearchResults.artists {
+                    
+                    return artists.items.map { artist in
+                        return Card(input: .artist, media: Media(input: .artist(Artist(images: artist.images, name: artist.name, popularity: artist.popularity, artistId: artist.id))))
+                    
+                }
             }
+        } catch {
+            print("Error during song search: \(error)")
         }
-        return results
+        return []
     }
     
+    @MainActor
     func startSearch() async {
         guard !self.searchText.isEmpty else { return }
 
@@ -97,7 +108,7 @@ struct SearchView: View {
         NavigationView {
             ScrollView {
                 VStack {
-                    Picker(selection: self.$searchBy, label: Text("Search Filter")) {
+                    Picker(selection: $searchBy, label: Text("Search Filter")) {
                         Text("Album").tag(0)
                         Text("Artist").tag(1)
                         Text("Song").tag(2)
@@ -105,27 +116,17 @@ struct SearchView: View {
                     .pickerStyle(SegmentedPickerStyle())
                     .padding()
                     
-                    Text(searchText).padding()
-                    
                     HStack {
-                        TextField("Search...", text: self.$searchText)
+                        TextField("Search...", text: $searchText)
                             .focused($isTextFieldFocused)
                             .onSubmit {
-                                Task {
-                                    await startSearch()
-                                    print(isTextFieldFocused)
-                                    print(searchText)
-                                    print(isLoading)
-                                }
+                                Task { await startSearch() }
                             }
                             .padding(7)
                             .padding(.horizontal, 25)
                             .background(Color(.systemGray4))
                             .cornerRadius(8)
                             .padding(.horizontal, 10)
-                            .onTapGesture {
-                                isTextFieldFocused = true
-                            }
                         
                         if !searchText.isEmpty {
                             Button("Cancel") {
@@ -133,7 +134,6 @@ struct SearchView: View {
                             }
                             .foregroundColor(.blue)
                             .padding(.trailing, 10)
-
                         }
                     }
                     
@@ -143,11 +143,9 @@ struct SearchView: View {
                     
                     CardList(results: cards)
                 }
+                .onTapGesture { isTextFieldFocused = false }
             }
             .navigationTitle("Search")
-            .onTapGesture {
-                isTextFieldFocused = false // Dismiss keyboard when tapping outside
-            }
         }
     }
 
