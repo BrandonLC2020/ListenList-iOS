@@ -96,12 +96,16 @@ struct SongCard: View {
                     }
                     
                     VStack(alignment: .leading) {
-                        Text(song.name)
-                            .bold()
-                            .lineLimit(1)
-                            .frame(maxWidth: 220, alignment: .leading)
-                            .truncationMode(.tail)
-
+                        HStack {
+                            Text(song.name)
+                                .bold()
+                                .lineLimit(1)
+                                .frame(maxWidth: 220, alignment: .leading)
+                                .truncationMode(.tail)
+                            if song.explicit {
+                                Image(systemName: "e.square.fill")
+                            }
+                        }
                         Text(artistsToStr())
                             .lineLimit(1)
                             .frame(maxWidth: 220, alignment: .leading)
@@ -130,7 +134,8 @@ struct SongCard: View {
         artists: [Artist(name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")],
         duration_ms: 184013,
         name: "Chemical",
-        popularity: 88
+        popularity: 88,
+        explicit: true
     )
     return SongCard(input: Media(input: .song(mockSong)))
 }

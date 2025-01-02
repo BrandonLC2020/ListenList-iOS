@@ -52,7 +52,7 @@ struct SearchView: View {
                 return songs.items.map { song in
                     let albumArtists = song.album.artists?.map { Artist(name: $0.name, artistId: $0.id) } ?? []
                     let songArtists = song.artists.map { Artist(name: $0.name, artistId: $0.id) }
-                    return Card(input: .song, media: Media(input: .song(Song(album: Album(images: song.album.images, name: song.album.name, release_date: song.album.release_date, artists: albumArtists), artists: songArtists, duration_ms: song.duration_ms, name: song.name, popularity: song.popularity))), id: song.id)
+                    return Card(input: .song, media: Media(input: .song(Song(album: Album(images: song.album.images, name: song.album.name, release_date: song.album.release_date, artists: albumArtists), artists: songArtists, duration_ms: song.duration_ms, name: song.name, popularity: song.popularity, explicit: song.explicit))), id: song.id)
                     
                 }
             }

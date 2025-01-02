@@ -49,6 +49,7 @@ struct SongResponse: Codable, Hashable {
     var name: String
     var id: String
     var popularity: Int
+    var explicit: Bool
 }
 
 struct ArtistResponse: Codable, Hashable {

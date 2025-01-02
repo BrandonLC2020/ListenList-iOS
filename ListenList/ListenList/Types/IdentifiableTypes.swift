@@ -14,6 +14,7 @@ struct Song: Identifiable, Hashable {
     var duration_ms: Int //in milliseconds
     var name: String
     var popularity: Int
+    var explicit: Bool
 }
 
 struct Artist: Identifiable, Hashable {
