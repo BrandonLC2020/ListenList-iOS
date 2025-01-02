@@ -1,24 +1,39 @@
+//
+//  SongCard.swift
+//  ListenList
+//
+//  Created by Brandon Lamer-Connolly on 10/12/24.
+//
+
 import SwiftUI
 
 struct SongCard: View {
     var input: Media
-    var song: Song? {
+    var song: Song?
+
+    init(input: Media) {
+        self.input = input
         if case let .song(song) = input.input {
-            return song
+            self.song = song
         }
-        return nil
     }
-    
+
     let maxHeight: CGFloat = 120
-    
+
     private func artistsToStr() -> String {
-        var result: String = ""
-        if let artists = song?.artists {
-            result = artists.map { $0.name }.joined(separator: ", ")
-        }
-        return result.isEmpty ? "Unknown Artist" : result
+        guard let artists = song?.artists, !artists.isEmpty else { return "Unknown Artist" }
+        return artists.map { $0.name }.joined(separator: ", ")
     }
-    
+
+    private var placeholderImage: some View {
+        Image(systemName: "photo")
+            .resizable()
+            .scaledToFit()
+            .cornerRadius(15.0)
+            .frame(maxWidth: 90, maxHeight: 90)
+            .padding(.all)
+    }
+
     var body: some View {
         guard let song = song else {
             return AnyView(EmptyView())
@@ -27,13 +42,10 @@ struct SongCard: View {
         return AnyView(
             ZStack {
                 HStack(alignment: .center) {
-                    if song.album.images.isEmpty {
-                        Image(systemName: "music.note")
-                            .cornerRadius(15.0)
+                    if song.album.images == nil || song.album.images.isEmpty {
+                        placeholderImage
                             .blur(radius: 4.2)
-                            .scaledToFill()
                             .frame(maxHeight: maxHeight)
-                            .clipped()
                     } else {
                         AsyncImage(url: URL(string: song.album.images[0].url)) { phase in
                             switch phase {
@@ -43,17 +55,13 @@ struct SongCard: View {
                                 image.resizable()
                                     .cornerRadius(15.0)
                             case .failure:
-                                Image(systemName: "photo")
-                                    .resizable()
-                                    .scaledToFit()
+                                placeholderImage
                             @unknown default:
                                 EmptyView()
                             }
                         }
                         .blur(radius: 4.2)
-                        .scaledToFill()
                         .frame(maxHeight: maxHeight)
-                        .clipped()
                     }
                 }
                 .cornerRadius(15.0)
@@ -61,20 +69,13 @@ struct SongCard: View {
                 HStack {
                     RoundedRectangle(cornerRadius: 15.0)
                         .foregroundColor(.gray.opacity(0.7))
-                        .cornerRadius(15.0)
-                        .scaledToFill()
                         .frame(maxHeight: maxHeight)
-                        .clipped()
                 }
                 .cornerRadius(15.0)
                 
                 HStack(alignment: .center) {
-                    if song.album.images.isEmpty {
-                        Image(systemName: "music.note")
-                            .aspectRatio(1, contentMode: .fit)
-                            .cornerRadius(15.0)
-                            .frame(maxWidth: 90, maxHeight: 90)
-                            .padding(.all)
+                    if song.album.images == nil || song.album.images.isEmpty {
+                        placeholderImage
                     } else {
                         AsyncImage(url: URL(string: song.album.images[0].url)) { phase in
                             switch phase {
@@ -84,9 +85,7 @@ struct SongCard: View {
                                 image.resizable()
                                     .cornerRadius(15.0)
                             case .failure:
-                                Image(systemName: "photo")
-                                    .resizable()
-                                    .scaledToFit()
+                                placeholderImage
                             @unknown default:
                                 EmptyView()
                             }
@@ -102,7 +101,7 @@ struct SongCard: View {
                             .lineLimit(1)
                             .frame(maxWidth: 220, alignment: .leading)
                             .truncationMode(.tail)
-                        
+
                         Text(artistsToStr())
                             .lineLimit(1)
                             .frame(maxWidth: 220, alignment: .leading)
@@ -112,13 +111,12 @@ struct SongCard: View {
                     
                     Spacer()
                 }
-                .scaledToFill()
-                .clipped()
             }
             .frame(maxWidth: 600, maxHeight: maxHeight)
             .padding([.leading, .trailing], 10)
         )
     }
+
 }
 
 #Preview {
