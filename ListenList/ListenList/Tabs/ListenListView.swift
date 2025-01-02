@@ -12,7 +12,7 @@ struct ListenListView: View {
         NavigationView() {
             ScrollView {
                 VStack {
-                    CardList(results: [])
+                    //CardList(results: [])
                 }
             }.navigationTitle("Your ListenList")
         }

@@ -89,8 +89,10 @@ struct SearchView: View {
         // Perform search and handle results
         let results: [Card] = await performSearch()
         
-        self.isLoading = false // Stop loading
         self.cards = results // Update results
+
+        self.isLoading = false // Stop loading
+        print("done searching!")
     }
 
 
@@ -119,6 +121,9 @@ struct SearchView: View {
                     HStack {
                         TextField("Search...", text: $searchText)
                             .focused($isTextFieldFocused)
+                            .onChange(of: searchText) {
+                                print("Search text changed to: \(searchText)")
+                            }
                             .onSubmit {
                                 Task { await startSearch() }
                             }
@@ -130,7 +135,7 @@ struct SearchView: View {
                         
                         if !searchText.isEmpty {
                             Button("Cancel") {
-                                resetSearch()
+                                Task { resetSearch() }
                             }
                             .foregroundColor(.blue)
                             .padding(.trailing, 10)
@@ -141,7 +146,7 @@ struct SearchView: View {
                         ProgressView("Searching...").padding()
                     }
                     
-                    CardList(results: cards)
+                    CardList(results: $cards)
                 }
                 .onTapGesture { isTextFieldFocused = false }
             }
