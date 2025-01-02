@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SongCard: View {
-    var id: UUID
     var input: Media
     var song: Song?
     
@@ -19,7 +18,6 @@ struct SongCard: View {
         if case let .song(song) = input.input {
             self.song = song
         }
-        self.id = UUID()
     }
     
     func artistsToStr() -> String {

@@ -9,15 +9,15 @@ import SwiftUI
 
 import Foundation
 
-class Card: Identifiable {
+struct Card: Identifiable {
     var type: CardType
     var input: Media
-    var id: UUID
+    var id: String
     
-    init(input: CardType, media: Media) {
+    init(input: CardType, media: Media, id: String) {
         self.type = input
         self.input = media
-        self.id = UUID()
+        self.id = id
     }
 }
 

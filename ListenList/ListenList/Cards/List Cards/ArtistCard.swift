@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ArtistCard: View {
-    var id: UUID
     var input: Media
     var artist: Artist?
     
@@ -19,7 +18,6 @@ struct ArtistCard: View {
         if case let .artist(artist) = input.input {
             self.artist = artist
         }
-        self.id = UUID()
     }
     
     var body: some View {

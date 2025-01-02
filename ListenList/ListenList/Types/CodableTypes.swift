@@ -47,6 +47,7 @@ struct SongResponse: Codable, Hashable {
     var artists: [ArtistResponse]
     var duration_ms: Int //in milliseconds
     var name: String
+    var id: String
     var popularity: Int
 }
 
@@ -62,6 +63,7 @@ struct AlbumResponse: Codable, Hashable {
     var name: String
     var release_date: String
     var artists: [ArtistResponse]?
+    var id: String
 }
 
 struct ImageResponse: Codable, Hashable {

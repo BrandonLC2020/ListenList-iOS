@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Media {
+struct Media {
     var input: MediaType
     
     init(input: MediaType) {
