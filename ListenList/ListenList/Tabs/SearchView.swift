@@ -135,7 +135,7 @@ struct SearchView: View {
                         
                         if !searchText.isEmpty {
                             Button("Cancel") {
-                                Task { resetSearch() }
+                                resetSearch()
                             }
                             .foregroundColor(.blue)
                             .padding(.trailing, 10)
@@ -148,8 +148,9 @@ struct SearchView: View {
                     
                     CardList(results: $cards)
                 }
-                .onTapGesture { isTextFieldFocused = false }
+                
             }
+            .onTapGesture { isTextFieldFocused = false }
             .navigationTitle("Search")
         }
     }
