@@ -1,10 +1,3 @@
-//
-//  ArtistCard.swift
-//  ListenList
-//
-//  Created by Brandon Lamer-Connolly on 10/12/24.
-//
-
 import SwiftUI
 
 struct ArtistCard: View {
@@ -20,79 +13,99 @@ struct ArtistCard: View {
         }
     }
     
+    private var placeholderImage: some View {
+        Image(systemName: "music.microphone")
+            .resizable()
+            .scaledToFit()
+            .cornerRadius(15.0)
+            .frame(maxWidth: 90, maxHeight: 90)
+            .padding(.all)
+    }
+    
     var body: some View {
-        ZStack {
-            HStack(alignment: .center) {
-                if artist!.images == nil || ((artist!.images?.isEmpty) != nil && artist!.images?.isEmpty == true) {
-                    Image(systemName: "music.microphone")
-                    .cornerRadius(15.0)
-                    .blur(radius: 4.2)
-                    .scaledToFill()
-                    .frame(maxHeight: maxHeight)
-                    .clipped()
-                } else {
-                    AsyncImage(url: URL(string: artist!.images![0].url)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        ProgressView()
+        guard let artist = artist else {
+            return AnyView(EmptyView())
+        }
+        
+        return AnyView(
+            ZStack {
+                HStack(alignment: .center) {
+                    if artist.images == nil || artist.images!.isEmpty {
+                        placeholderImage
+                            .blur(radius: 4.2)
+                            .frame(maxHeight: maxHeight)
+                    } else {
+                        AsyncImage(url: URL(string: artist.images![0].url)) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                            case .success(let image):
+                                image.resizable()
+                                    .cornerRadius(15.0)
+                            case .failure:
+                                placeholderImage
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
+                        .blur(radius: 4.2)
+                        .frame(maxHeight: maxHeight)
                     }
-                    .cornerRadius(15.0)
-                    .blur(radius: 4.2)
-                    .scaledToFill()
-                    .frame(maxHeight: maxHeight)
-                    .clipped()
                 }
-            }.cornerRadius(15.0)
-            HStack {
-                RoundedRectangle(cornerRadius: 15.0)
-                    .foregroundColor(.gray.opacity(0.7))
-                    .cornerRadius(15.0)
-                    .scaledToFill()
-                    .frame(maxHeight: maxHeight)
-                    .clipped()
-            }.cornerRadius(15.0)
-            
-            HStack(alignment: .center) {
-                //album cover
-                if artist!.images == nil || ((artist!.images?.isEmpty) != nil && artist!.images?.isEmpty == true) {
-                    Image(systemName: "music.microphone")
-                        .aspectRatio(1, contentMode: .fit)
+                .cornerRadius(15.0)
+                
+                HStack {
+                    RoundedRectangle(cornerRadius: 15.0)
+                        .foregroundColor(.gray.opacity(0.7))
+                        .frame(maxHeight: maxHeight)
+                }
+                .cornerRadius(15.0)
+                
+                HStack(alignment: .center) {
+                    if artist.images == nil || artist.images!.isEmpty {
+                        placeholderImage
+                    } else {
+                        AsyncImage(url: URL(string: artist.images![0].url)) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                            case .success(let image):
+                                image.resizable()
+                                    .cornerRadius(15.0)
+                            case .failure:
+                                placeholderImage
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
                         .cornerRadius(15.0)
                         .frame(maxWidth: 90, maxHeight: 90)
                         .padding(.all)
-                } else {
-                    AsyncImage(url: URL(string: artist!.images![0].url)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        ProgressView()
                     }
-                    .aspectRatio(1, contentMode: .fit)
-                    .cornerRadius(15.0)
-                    .frame(maxWidth: 90, maxHeight: 90)
-                    .padding(.all)
+                    
+                    VStack(alignment: .leading) {
+                        Text(artist.name)
+                            .bold()
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                    }
+                    .padding(.trailing)
+                    
+                    Spacer()
                 }
-                
-                //song title and artist(s) name(s)
-                VStack(alignment: .leading) {
-                    Text(artist!.name)
-                        .bold()
-                        .lineLimit(2)
-                        .frame(maxWidth: 220, alignment: .leading)
-                        .truncationMode(.tail)
-                }
-                .padding(.trailing)
-                
-                Spacer()
             }
-            .scaledToFill()
-            .clipped()
-        }
-        .frame(maxWidth: 600, maxHeight: maxHeight, alignment: .center)
-        .clipped()
-        .padding([.leading, .trailing], 10)
+            .frame(maxWidth: 600, maxHeight: maxHeight)
+            .padding([.leading, .trailing], 10)
+        )
     }
 }
 
 #Preview {
-    ArtistCard(input: Media(input: .artist(Artist(images: [ImageResponse(url: "https://i.scdn.co/image/ab6761610000e5eb19c2790744c792d05570bb71",        height: 640, width: 640)], name: "Travis Scott", artistId: "246dkjvS1zLTtiykXe5h60"))))
+    let mockArtist = Artist(
+        images: [ImageResponse(url: "https://i.scdn.co/image/ab6761610000e5eb19c2790744c792d05570bb71", height: 640, width: 640)],
+        name: "Travis Scott",
+        artistId: "246dkjvS1zLTtiykXe5h60"
+    )
+    return ArtistCard(input: Media(input: .artist(mockArtist)))
 }
+
