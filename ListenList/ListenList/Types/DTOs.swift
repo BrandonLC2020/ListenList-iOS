@@ -15,7 +15,9 @@ struct ArtistDTO: Codable {
 struct AlbumDTO: Codable {
 //    let id: String
     let name: String
-//    let releaseDate: String
+    let releaseDate: String
+    var images: [ImageDTO] = []
+    var artists: [ArtistDTO] = []
 }
 
 struct SongDTO: Codable {
@@ -26,5 +28,11 @@ struct SongDTO: Codable {
     let isExplicit: Bool
     var album: AlbumDTO? // Resolved album
     var artists: [ArtistDTO] = [] // Resolved artists
+}
+
+struct ImageDTO: Codable {
+    let height: Int
+    let width: Int
+    let url: String
 }
 
