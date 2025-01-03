@@ -12,7 +12,7 @@ struct ListenListView: View {
     
     var songs: [Song]
     
-    func fetchList() {
+    func fetchSongList() {
         var songIds = [String]()
         DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
@@ -20,19 +20,48 @@ struct ListenListView: View {
             } else if let documents = documents {
                 for document in documents {
                     let id = document.documentID
-                    print(id)
                     songIds.append(id as String)
+                }
+                print(songIds)
+                for songId in songIds {
+                    DatabaseManager.shared.fetchSong(withId: songId) { song, error in
+                        if let error = error {
+                            print("Error fetching song: \(error.localizedDescription)")
+                        } else if let song = song {
+                            print("Song Name: \(song.name)")
+                            print("Popularity: \(song.popularity)")
+                            print("Album Name: \(song.album?.name ?? "Unknown")")
+                            print("Artists:")
+                            for artist in song.artists {
+                                print(" - \(artist.name)")
+                            }
+                        }
+                    }
                 }
             }
         }
-        for songId in songIds {
-            print(songId)
-        }
+        
     }
+    
+    func fetchAlbumList() {
+        var albumIds = [String]()
+        DatabaseManager.shared.fetchAlbumIds { documents, error in
+            if let error = error {
+                print("Error fetching users: \(error.localizedDescription)")
+            } else if let documents = documents {
+                for document in documents {
+                    let id = document.documentID
+                    print(document.data() as Any)
+                }
+            }
+        }
+        
+    }
+
     
     init() {
         self.songs = []
-        fetchList()
+        fetchAlbumList()
     }
 
     

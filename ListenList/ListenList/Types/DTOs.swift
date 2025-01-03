@@ -8,18 +8,18 @@
 import Foundation
 
 struct ArtistDTO: Codable {
-    let id: String
+//    let id: String
     let name: String
 }
 
 struct AlbumDTO: Codable {
-    let id: String
+//    let id: String
     let name: String
-    let releaseDate: String
+//    let releaseDate: String
 }
 
 struct SongDTO: Codable {
-    let id: String
+//    let id: String
     let name: String
     let popularity: Int
     let durationMs: Int

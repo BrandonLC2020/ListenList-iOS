@@ -32,6 +32,12 @@ class DatabaseManager {
         }
     }
     
+    func fetchAlbumIds(completion: @escaping ([DocumentSnapshot]?, Error?) -> Void) {
+        db.collection("albums").getDocuments { snapshot, error in
+            completion(snapshot?.documents, error)
+        }
+    }
+    
     func fetchSong(withId songId: String, completion: @escaping (SongDTO?, Error?) -> Void) {
             let songRef = db.collection("songs").document(songId)
 
