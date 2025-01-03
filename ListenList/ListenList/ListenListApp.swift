@@ -9,6 +9,17 @@ import SwiftUI
 import Foundation
 import CryptoKit
 import WebKit
+import FirebaseCore
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
+}
+
 
 func isLoggedIn() -> Bool {
     let code = UserDefaults.standard.object(forKey: "code") as? String
@@ -37,6 +48,8 @@ func generateRandomString(length: Int) -> String {
 
 @main
 struct ListenListApp: App {
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     @State var authenticated: Bool = isLoggedIn()
     var authURL: String = ""
