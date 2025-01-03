@@ -109,10 +109,10 @@ struct ArtistCard: View {
 
 #Preview {
     let mockArtist = Artist(
-        images: [ImageResponse(url: "https://i.scdn.co/image/ab6761610000e5eb19c2790744c792d05570bb71", height: 640, width: 640)],
+        id: "012", images: [ImageResponse(url: "https://i.scdn.co/image/ab6761610000e5eb19c2790744c792d05570bb71", height: 640, width: 640)],
         name: "Travis Scott",
         artistId: "246dkjvS1zLTtiykXe5h60"
     )
-    return ArtistCard(input: Media(input: .artist(mockArtist)))
+    ArtistCard(input: Media(input: .artist(mockArtist)))
 }
 

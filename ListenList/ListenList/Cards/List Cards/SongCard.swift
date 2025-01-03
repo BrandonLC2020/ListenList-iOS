@@ -125,17 +125,18 @@ struct SongCard: View {
 
 #Preview {
     let mockSong = Song(
+        id: "001",
         album: Album(
-            images: [ImageResponse(url: "https://i.scdn.co/image/ab67616d0000b273f76f8deeba5370c98ad38f1c", height: 640, width: 640)],
+            id: "012", images: [ImageResponse(url: "https://i.scdn.co/image/ab67616d0000b273f76f8deeba5370c98ad38f1c", height: 640, width: 640)],
             name: "Chemical",
             release_date: "2023-04-14",
-            artists: [Artist(name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")]
+            artists: [Artist(id: "011", name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")]
         ),
-        artists: [Artist(name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")],
+        artists: [Artist(id: "0112", name: "Post Malone", artistId: "246dkjvS1zLTtiykXe5h60")],
         duration_ms: 184013,
         name: "Chemical",
         popularity: 88,
         explicit: true
     )
-    return SongCard(input: Media(input: .song(mockSong)))
+    SongCard(input: Media(input: .song(mockSong)))
 }

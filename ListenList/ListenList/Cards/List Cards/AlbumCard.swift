@@ -119,10 +119,11 @@ struct AlbumCard: View {
 
 #Preview {
     let mockAlbum = Album(
+        id: "123",
         images: [ImageResponse(url: "https://i.scdn.co/image/ab67616d0000b273f76f8deeba5370c98ad38f1c", height: 640, width: 640)],
         name: "Mock Album",
         release_date: "2023-01-01",
-        artists: [Artist(name: "Mock Artist", artistId: "123")]
+        artists: [Artist(id: "012", name: "Mock Artist", artistId: "123")]
     )
-    return AlbumCard(input: Media(input: .album(mockAlbum)))
+    AlbumCard(input: Media(input: .album(mockAlbum)))
 }
