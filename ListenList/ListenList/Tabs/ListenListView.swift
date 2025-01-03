@@ -13,15 +13,20 @@ struct ListenListView: View {
     var songs: [Song]
     
     func fetchList() {
-        let songList: () = DatabaseManager.shared.fetchSongs { documents, error in
+        var songIds = [String]()
+        DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
                 print("Error fetching users: \(error.localizedDescription)")
             } else if let documents = documents {
                 for document in documents {
-                    let data = document.data()
-                    print("User ID: \(document.documentID), Data: \(String(describing: data))")
+                    let id = document.documentID
+                    print(id)
+                    songIds.append(id as String)
                 }
             }
+        }
+        for songId in songIds {
+            print(songId)
         }
     }
     
