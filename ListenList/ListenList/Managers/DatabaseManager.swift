@@ -26,5 +26,10 @@ class DatabaseManager {
         }
     }
 
+    func fetchSongs(completion: @escaping ([DocumentSnapshot]?, Error?) -> Void) {
+        db.collection("songs").getDocuments { snapshot, error in
+            completion(snapshot?.documents, error)
+        }
+    }
 }
 
