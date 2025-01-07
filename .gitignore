@@ -64,3 +64,4 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 ListenList/ListenList/GoogleService-Info.plist
 ListenList/GoogleService-Info.plist
+ListenList/ListenList/GoogleService-Info.plist
