@@ -16,7 +16,7 @@ struct ListenListView: View {
         var songIds = [String]()
         DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
-                print("Error fetching users: \(error.localizedDescription)")
+                print("Error fetching songs: \(error.localizedDescription)")
             } else if let documents = documents {
                 for document in documents {
                     let id = document.documentID
@@ -47,10 +47,11 @@ struct ListenListView: View {
         var albumIds = [String]()
         DatabaseManager.shared.fetchAlbumIds { documents, error in
             if let error = error {
-                print("Error fetching users: \(error.localizedDescription)")
+                print("Error fetching albums: \(error.localizedDescription)")
             } else if let documents = documents {
                 for document in documents {
                     let id = document.documentID
+                    print("id: \(id)")
                     print(document.data() as Any)
                 }
             }
