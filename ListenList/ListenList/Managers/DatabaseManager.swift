@@ -43,18 +43,23 @@ class DatabaseManager {
 
         songRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
+                print("Error fetching song data: \(error?.localizedDescription ?? "Unknown error")")
                 completion(nil, error)
                 return
             }
 
+            // Log the raw data before decoding
+            print("Raw song data for ID \(songId): \(data)")
+
             do {
                 var song = try Firestore.Decoder().decode(SongDTO.self, from: data)
 
-                // Resolve album and artists
+                // Fetch album if it's a reference
                 if let albumRef = data["album"] as? DocumentReference {
                     self.fetchAlbum(from: albumRef) { album, error in
-                        song.album = album
-                        
+                        song.album = album // Set the resolved album
+
+                        // Fetch artists if present in the song
                         if let artistRefs = data["artists"] as? [DocumentReference] {
                             self.fetchArtists(from: artistRefs) { artists, error in
                                 song.artists = artists
@@ -65,41 +70,105 @@ class DatabaseManager {
                         }
                     }
                 } else {
+                    // If there's no album reference, just return the song
                     completion(song, nil)
                 }
+            } catch let error as DecodingError {
+                // Detailed logging of decoding errors
+                switch error {
+                case .typeMismatch(let type, let context):
+                    print("Type mismatch error: \(type) at \(context.codingPath)")
+                case .valueNotFound(let value, let context):
+                    print("Value not found error: \(value) at \(context.codingPath)")
+                case .keyNotFound(let key, let context):
+                    print("Key not found error: \(key) at \(context.codingPath)")
+                case .dataCorrupted(let context):
+                    print("Data corrupted error: \(context)")
+                default:
+                    print("Unknown decoding error: \(error.localizedDescription)")
+                }
+                completion(nil, error)
             } catch {
+                // Catch any other errors
+                print("Unknown error: \(error.localizedDescription)")
                 completion(nil, error)
             }
         }
     }
 
-    private func fetchAlbum(from albumRef: DocumentReference, completion: @escaping (AlbumDTO?, Error?) -> Void) {
+    func fetchAlbum(from albumRef: DocumentReference, completion: @escaping (AlbumDTO?, Error?) -> Void) {
         albumRef.getDocument { snapshot, error in
-            guard let data = snapshot?.data(), error == nil else {
+            if let error = error {
+                print("Error fetching album: \(error.localizedDescription)")
                 completion(nil, error)
                 return
             }
 
+            guard let data = snapshot?.data() else {
+                print("Album data is nil for reference: \(albumRef.path)")
+                completion(nil, nil)
+                return
+            }
+
+            print("Raw album data for reference \(albumRef.path): \(data)")
+
             do {
-                let album = try Firestore.Decoder().decode(AlbumDTO.self, from: data)
-                completion(album, nil)
+                // Decode the basic album data
+                var album = try Firestore.Decoder().decode(AlbumDTO.self, from: data)
+
+                // Resolve artists if present
+                if let artistRefs = data["artists"] as? [DocumentReference] {
+                    self.fetchArtists(from: artistRefs) { artists, error in
+                        if let error = error {
+                            print("Error resolving artists: \(error.localizedDescription)")
+                        } else {
+                            album.artists = artists
+                        }
+
+                        // Resolve images if present
+                        if let imageRefs = data["images"] as? [DocumentReference] {
+                            self.fetchImages(from: imageRefs) { images, error in
+                                if let error = error {
+                                    print("Error resolving images: \(error.localizedDescription)")
+                                } else {
+                                    album.images = images
+                                }
+                                completion(album, nil)
+                            }
+                        } else {
+                            // No images found, return album with resolved artists
+                            completion(album, nil)
+                        }
+                    }
+                } else {
+                    // No artists found, return album with no artists and images
+                    completion(album, nil)
+                }
             } catch {
+                print("Error decoding album data for reference \(albumRef.path): \(error.localizedDescription)")
                 completion(nil, error)
             }
         }
     }
 
-    private func fetchArtists(from artistRefs: [DocumentReference], completion: @escaping ([ArtistDTO], Error?) -> Void) {
+    func fetchArtists(from artistRefs: [DocumentReference], completion: @escaping ([ArtistDTO], Error?) -> Void) {
         var artists: [ArtistDTO] = []
         let dispatchGroup = DispatchGroup()
 
         for ref in artistRefs {
             dispatchGroup.enter()
             ref.getDocument { snapshot, error in
-                if let data = snapshot?.data(), error == nil {
-                    if let artist = try? Firestore.Decoder().decode(ArtistDTO.self, from: data) {
+                if let error = error {
+                    print("Error fetching artist data for \(ref.path): \(error.localizedDescription)")
+                } else if let data = snapshot?.data() {
+                    do {
+                        let artist = try Firestore.Decoder().decode(ArtistDTO.self, from: data)
                         artists.append(artist)
+                    } catch {
+                        print("Error decoding artist data for \(ref.path): \(error.localizedDescription)")
                     }
+                } else {
+                    print("Artist document is missing or empty for \(ref.path)")
                 }
                 dispatchGroup.leave()
             }
@@ -110,5 +179,32 @@ class DatabaseManager {
         }
     }
 
+    private func fetchImages(from imageRefs: [DocumentReference], completion: @escaping ([ImageDTO], Error?) -> Void) {
+        var images: [ImageDTO] = []
+        let dispatchGroup = DispatchGroup()
+
+        for ref in imageRefs {
+            dispatchGroup.enter()
+            ref.getDocument { snapshot, error in
+                if let error = error {
+                    print("Error fetching image data for \(ref.path): \(error.localizedDescription)")
+                } else if let data = snapshot?.data() {
+                    do {
+                        let image = try Firestore.Decoder().decode(ImageDTO.self, from: data)
+                        images.append(image)
+                    } catch {
+                        print("Error decoding image data for \(ref.path): \(error.localizedDescription)")
+                    }
+                } else {
+                    print("Image document is missing or empty for \(ref.path)")
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            completion(images, nil)
+        }
+    }
 }
 

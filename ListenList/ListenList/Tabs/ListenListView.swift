@@ -38,13 +38,20 @@ struct ListenListView: View {
                     group.enter()
                     DatabaseManager.shared.fetchSong(withId: songId) { songDTO, error in
                         if let error = error {
-                            print("Error fetching song: \(error.localizedDescription)")
-                        } else if let song = Song(from: songDTO) { // Safe conversion
-                            fetchedSongs.append(song)
+                            print("Error fetching song with ID \(songId): \(error.localizedDescription)")
+                        } else if let songDTO = songDTO {
+                            if let song = Song(from: songDTO, id: songId) { // Safe conversion
+                                fetchedSongs.append(song)
+                            } else {
+                                print("Failed to convert songDTO to Song for ID \(songId).")
+                            }
+                        } else {
+                            print("No songDTO found for ID \(songId).")
                         }
                         group.leave()
                     }
                 }
+
                 
                 group.notify(queue: .main) {
                     // Convert songs to cards
@@ -62,11 +69,13 @@ struct ListenListView: View {
                 VStack {
                     if isLoading {
                         ProgressView("Loading songs...")
-                    } else if songs.isEmpty {
+                    } else if songs.isEmpty && cards.isEmpty {
                         Text("No songs found.")
                     } else {
-                        CardList(results: [])
+                        CardList(results: self.cards)
                     }
+                    Text("song count: \(songs.count)")
+                    Text("card count: \(cards.count)")
                 }
             }
             .navigationTitle("Your ListenList")

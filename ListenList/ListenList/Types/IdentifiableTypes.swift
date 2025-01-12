@@ -34,21 +34,40 @@ struct Album: Identifiable, Hashable {
 }
 
 extension Song {
-    init?(from dto: SongDTO?) {
-        guard let dto = dto else { return nil } // Return nil if the DTO is nil
-        self.id = UUID().uuidString // Generate a unique ID or map from Firestore if available
-        self.album = Album(from: dto.album) ?? Album(
-            id: UUID().uuidString,
-            images: [],
-            name: "Unknown Album",
-            release_date: "Unknown Date",
-            artists: []
-        )
-        self.artists = dto.artists.map { Artist(from: $0) }
-        self.duration_ms = dto.durationMs
-        self.name = dto.name
-        self.popularity = dto.popularity
-        self.explicit = dto.isExplicit
+    init?(from dto: SongDTO, id: String) {
+        // Handling album resolution (since album is a DocumentReference in SongDTO)
+        guard let albumRef = dto.album else {
+            print("Missing album reference for song \(dto.name)")
+            return nil
+        }
+
+        // Fetch the album document
+        DatabaseManager.shared.fetchAlbum(from: albumRef) { album, error in
+            guard let album = album, error == nil else {
+                print("Error fetching album for song \(dto.name): \(error?.localizedDescription ?? "Unknown error")")
+                return nil
+            }
+
+            // Convert albumDTO into the Album model
+            let albumModel = Album(
+                id: id,
+                images: album.images.map { ImageResponse(url: $0.url, height: $0.height, width: $0.width) },
+                name: album.name,
+                release_date: album.releaseDate,
+                artists: album.artists.map { Artist(from: $0) }
+            )
+
+            // Assign the resolved album
+            self.id = id
+            self.name = dto.name
+            self.popularity = dto.popularity
+            self.duration_ms = dto.durationMs
+            self.explicit = dto.isExplicit
+            self.album = albumModel
+
+            // Convert artists
+            self.artists = dto.artists.map { Artist(from: $0) }
+        }
     }
 }
 
