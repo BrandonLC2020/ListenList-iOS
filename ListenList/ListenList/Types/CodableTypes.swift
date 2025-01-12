@@ -72,3 +72,11 @@ struct ImageResponse: Codable, Hashable {
     var height: Int?
     var width: Int?
 }
+
+extension ImageResponse {
+    init(from dto: ImageDTO) {
+        self.height = dto.height
+        self.width = dto.width
+        self.url = dto.url
+    }
+}

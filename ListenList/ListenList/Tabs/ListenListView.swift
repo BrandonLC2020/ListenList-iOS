@@ -10,70 +10,69 @@ import FirebaseFirestore
 
 struct ListenListView: View {
     
-    var songs: [Song]
+    @State private var cards: [Card] = [] // Holds the list of cards
+    @State private var songs: [Song] = [] // Use the SwiftUI-compatible Song type
+    @State private var isLoading = true     // Track loading state
+    
+    func createCard(from song: Song) -> Card {
+        let media = Media(input: .song(song)) // Wrap the Song in a MediaType
+        return Card(input: .song, media: media, id: song.id) // Create the Card
+    }
     
     func fetchSongList() {
         var songIds = [String]()
         DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
-                print("Error fetching songs: \(error.localizedDescription)")
+                print("Error fetching song IDs: \(error.localizedDescription)")
+                self.isLoading = false
             } else if let documents = documents {
                 for document in documents {
                     let id = document.documentID
-                    songIds.append(id as String)
+                    songIds.append(id)
                 }
-                print(songIds)
+                
+                var fetchedSongs: [Song] = []
+                let group = DispatchGroup()
+                
                 for songId in songIds {
-                    DatabaseManager.shared.fetchSong(withId: songId) { song, error in
+                    group.enter()
+                    DatabaseManager.shared.fetchSong(withId: songId) { songDTO, error in
                         if let error = error {
                             print("Error fetching song: \(error.localizedDescription)")
-                        } else if let song = song {
-                            print("Song Name: \(song.name)")
-                            print("Popularity: \(song.popularity)")
-                            print("Album Name: \(song.album?.name ?? "Unknown")")
-                            print("Artists:")
-                            for artist in song.artists {
-                                print(" - \(artist.name)")
-                            }
+                        } else if let song = Song(from: songDTO) { // Safe conversion
+                            fetchedSongs.append(song)
                         }
+                        group.leave()
+                    }
+                }
+                
+                group.notify(queue: .main) {
+                    // Convert songs to cards
+                    let songCards = fetchedSongs.map { createCard(from: $0) }
+                    self.cards = songCards // Assign to a @State property in your View
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack {
+                    if isLoading {
+                        ProgressView("Loading songs...")
+                    } else if songs.isEmpty {
+                        Text("No songs found.")
+                    } else {
+                        CardList(results: [])
                     }
                 }
             }
-        }
-        
-    }
-    
-    func fetchAlbumList() {
-        var albumIds = [String]()
-        DatabaseManager.shared.fetchAlbumIds { documents, error in
-            if let error = error {
-                print("Error fetching albums: \(error.localizedDescription)")
-            } else if let documents = documents {
-                for document in documents {
-                    let id = document.documentID
-                    print("id: \(id)")
-                    print(document.data() as Any)
-                }
+            .navigationTitle("Your ListenList")
+            .onAppear {
+                fetchSongList()
             }
-        }
-        
-    }
-
-    
-    init() {
-        self.songs = []
-        fetchAlbumList()
-    }
-
-    
-    var body: some View {
-        NavigationView() {
-            ScrollView {
-                VStack {
-                    CardList(results: [])
-                }
-            }.navigationTitle("Your ListenList")
         }
     }
 }
-

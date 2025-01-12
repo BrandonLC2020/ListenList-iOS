@@ -32,3 +32,43 @@ struct Album: Identifiable, Hashable {
     var release_date: String
     var artists: [Artist]
 }
+
+extension Song {
+    init?(from dto: SongDTO?) {
+        guard let dto = dto else { return nil } // Return nil if the DTO is nil
+        self.id = UUID().uuidString // Generate a unique ID or map from Firestore if available
+        self.album = Album(from: dto.album) ?? Album(
+            id: UUID().uuidString,
+            images: [],
+            name: "Unknown Album",
+            release_date: "Unknown Date",
+            artists: []
+        )
+        self.artists = dto.artists.map { Artist(from: $0) }
+        self.duration_ms = dto.durationMs
+        self.name = dto.name
+        self.popularity = dto.popularity
+        self.explicit = dto.isExplicit
+    }
+}
+
+extension Album {
+    init?(from dto: AlbumDTO?) {
+        guard let dto = dto else { return nil }
+        self.id = UUID().uuidString // Generate or map the ID
+        self.images = dto.images.map { ImageResponse(from: $0) }
+        self.name = dto.name
+        self.release_date = dto.releaseDate
+        self.artists = dto.artists.map { Artist(from: $0) }
+    }
+}
+
+extension Artist {
+    init(from dto: ArtistDTO) {
+        self.id = UUID().uuidString // Generate or map the ID
+        self.images = nil // Add logic if `ArtistDTO` includes image data in the future
+        self.name = dto.name
+        self.popularity = nil // Add if `ArtistDTO` includes popularity data
+        self.artistId = UUID().uuidString // Generate or map
+    }
+}
