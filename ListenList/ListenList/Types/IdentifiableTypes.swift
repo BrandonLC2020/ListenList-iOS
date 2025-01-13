@@ -11,10 +11,23 @@ struct Song: Identifiable, Hashable {
     var id: String
     var album: Album
     var artists: [Artist]
-    var duration_ms: Int //in milliseconds
+    var duration_ms: Int
     var name: String
     var popularity: Int
     var explicit: Bool
+
+    static func create(from dto: SongDTO, id: String, album: Album, completion: @escaping (Song) -> Void) {
+        let song = Song(
+            id: id,
+            name: dto.name,
+            popularity: dto.popularity,
+            duration_ms: dto.durationMs,
+            explicit: dto.isExplicit,
+            album: album,
+            artists: dto.artists.toArtists()
+        )
+        completion(song)
+    }
 }
 
 struct Artist: Identifiable, Hashable {
@@ -31,44 +44,6 @@ struct Album: Identifiable, Hashable {
     var name: String
     var release_date: String
     var artists: [Artist]
-}
-
-extension Song {
-    init?(from dto: SongDTO, id: String) {
-        // Handling album resolution (since album is a DocumentReference in SongDTO)
-        guard let albumRef = dto.album else {
-            print("Missing album reference for song \(dto.name)")
-            return nil
-        }
-
-        // Fetch the album document
-        DatabaseManager.shared.fetchAlbum(from: albumRef) { album, error in
-            guard let album = album, error == nil else {
-                print("Error fetching album for song \(dto.name): \(error?.localizedDescription ?? "Unknown error")")
-                return nil
-            }
-
-            // Convert albumDTO into the Album model
-            let albumModel = Album(
-                id: id,
-                images: album.images.map { ImageResponse(url: $0.url, height: $0.height, width: $0.width) },
-                name: album.name,
-                release_date: album.releaseDate,
-                artists: album.artists.map { Artist(from: $0) }
-            )
-
-            // Assign the resolved album
-            self.id = id
-            self.name = dto.name
-            self.popularity = dto.popularity
-            self.duration_ms = dto.durationMs
-            self.explicit = dto.isExplicit
-            self.album = albumModel
-
-            // Convert artists
-            self.artists = dto.artists.map { Artist(from: $0) }
-        }
-    }
 }
 
 extension Album {

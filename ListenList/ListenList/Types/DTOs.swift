@@ -26,7 +26,7 @@ struct SongDTO: Codable {
     let popularity: Int
     let durationMs: Int
     var isExplicit: Bool
-    var album: DocumentReference // Change to DocumentReference
+    var album: AlbumDTO? 
     var artists: [ArtistDTO] = [] // Resolved artists
 
     enum CodingKeys: String, CodingKey {
@@ -50,7 +50,7 @@ struct SongDTO: Codable {
         }
 
         // Decode `album` as a DocumentReference
-        album = try! container.decode(DocumentReference.self, forKey: .album)
+        album = try! container.decode(AlbumDTO.self, forKey: .album)
 
         // Optional decoding for artists
         artists = (try? container.decode([ArtistDTO].self, forKey: .artists)) ?? []

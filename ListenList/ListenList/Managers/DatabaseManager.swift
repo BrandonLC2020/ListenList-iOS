@@ -98,54 +98,15 @@ class DatabaseManager {
 
     func fetchAlbum(from albumRef: DocumentReference, completion: @escaping (AlbumDTO?, Error?) -> Void) {
         albumRef.getDocument { snapshot, error in
-            if let error = error {
-                print("Error fetching album: \(error.localizedDescription)")
+            guard let data = snapshot?.data(), error == nil else {
                 completion(nil, error)
                 return
             }
 
-            guard let data = snapshot?.data() else {
-                print("Album data is nil for reference: \(albumRef.path)")
-                completion(nil, nil)
-                return
-            }
-
-            print("Raw album data for reference \(albumRef.path): \(data)")
-
             do {
-                // Decode the basic album data
-                var album = try Firestore.Decoder().decode(AlbumDTO.self, from: data)
-
-                // Resolve artists if present
-                if let artistRefs = data["artists"] as? [DocumentReference] {
-                    self.fetchArtists(from: artistRefs) { artists, error in
-                        if let error = error {
-                            print("Error resolving artists: \(error.localizedDescription)")
-                        } else {
-                            album.artists = artists
-                        }
-
-                        // Resolve images if present
-                        if let imageRefs = data["images"] as? [DocumentReference] {
-                            self.fetchImages(from: imageRefs) { images, error in
-                                if let error = error {
-                                    print("Error resolving images: \(error.localizedDescription)")
-                                } else {
-                                    album.images = images
-                                }
-                                completion(album, nil)
-                            }
-                        } else {
-                            // No images found, return album with resolved artists
-                            completion(album, nil)
-                        }
-                    }
-                } else {
-                    // No artists found, return album with no artists and images
-                    completion(album, nil)
-                }
+                let album = try Firestore.Decoder().decode(AlbumDTO.self, from: data)
+                completion(album, nil)
             } catch {
-                print("Error decoding album data for reference \(albumRef.path): \(error.localizedDescription)")
                 completion(nil, error)
             }
         }
