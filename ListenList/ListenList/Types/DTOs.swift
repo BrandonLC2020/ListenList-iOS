@@ -55,9 +55,9 @@ struct SongDTO: Codable {
     }
 
     // Custom decoding to handle `isExplicit` as an integer or boolean
-    init(from decoder: Decoder) throws {
+    init(from decoder: Decoder, songId: String) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
+        id = songId
         name = try container.decode(String.self, forKey: .name)
         popularity = try container.decode(Int.self, forKey: .popularity)
         durationMs = try container.decode(Int.self, forKey: .durationMs)
