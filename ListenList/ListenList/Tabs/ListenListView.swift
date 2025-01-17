@@ -40,7 +40,7 @@ struct ListenListView: View {
                         if let error = error {
                             print("Error fetching song with ID \(songId): \(error.localizedDescription)")
                         } else if let songDTO = songDTO {
-                            if let song = Song(from: songDTO, id: songId) { // Safe conversion
+                            if let song = SongDTO.toSong(from: songDTO) { // Safe conversion
                                 fetchedSongs.append(song)
                             } else {
                                 print("Failed to convert songDTO to Song for ID \(songId).")
