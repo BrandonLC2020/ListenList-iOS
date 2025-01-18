@@ -11,13 +11,25 @@ import FirebaseFirestore
 struct ArtistDTO: Codable {
     let id: String
     let name: String
+    var images: [ImageDTO]?
+    var popularity: Int?
     
-    static func toArtist(from dto: ArtistDTO) -> Artist {
+    static func toArtistLite(from dto: ArtistDTO) -> Artist {
         Artist(
             id: dto.id,
             images: nil,
             name: dto.name,
             popularity: nil,
+            artistId: dto.id
+        )
+    }
+    
+    static func toArtist(from dto: ArtistDTO) -> Artist {
+        Artist(
+            id: dto.id,
+            images: dto.images?.map { ImageDTO.toImageResponse(from: $0) },
+            name: dto.name,
+            popularity: dto.popularity,
             artistId: dto.id
         )
     }
@@ -36,7 +48,7 @@ struct AlbumDTO: Codable {
             images: dto.images.map { ImageDTO.toImageResponse(from: $0) },
             name: dto.name,
             release_date: dto.releaseDate,
-            artists: dto.artists.map { ArtistDTO.toArtist(from: $0) }
+            artists: dto.artists.map { ArtistDTO.toArtistLite(from: $0) }
         )
     }
 }
@@ -82,7 +94,7 @@ struct SongDTO: Codable {
         Song(
             id: dto.id,
             album: AlbumDTO.toAlbum(from: dto.album!),
-            artists: dto.artists.map { ArtistDTO.toArtist(from: $0) },
+            artists: dto.artists.map { ArtistDTO.toArtistLite(from: $0) },
             duration_ms: dto.durationMs,
             name: dto.name,
             popularity: dto.popularity,

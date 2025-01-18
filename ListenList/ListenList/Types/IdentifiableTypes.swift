@@ -20,7 +20,7 @@ struct Song: Identifiable, Hashable {
         let song = Song(
             id: id,
             album: album,
-            artists: dto.artists.map { ArtistDTO.toArtist(from: $0) },
+            artists: dto.artists.map { ArtistDTO.toArtistLite(from: $0) },
             duration_ms: dto.durationMs,
             name: dto.name,
             popularity: dto.popularity,
