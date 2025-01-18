@@ -41,40 +41,56 @@ class DatabaseManager {
     func fetchSong(withId songId: String, completion: @escaping (SongDTO?, Error?) -> Void) {
         let songRef = db.collection("songs").document(songId)
 
-        songRef.getDocument { snapshot, error in
+        songRef.getDocument { [self] snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
-                print("Error fetching song data: \(error?.localizedDescription ?? "Unknown error")")
+                print("Error fetching song data for ID \(songId): \(error?.localizedDescription ?? "Unknown error")")
                 completion(nil, error)
                 return
             }
 
-            // Log the raw data before decoding
+            // Log raw data for debugging
             print("Raw song data for ID \(songId): \(data)")
 
             do {
-                var song = try Firestore.Decoder().decode(SongDTO.self, from: data)
+                // Decode base SongDTO
+                var songDTO = try Firestore.Decoder().decode(SongDTO.self, from: data)
 
                 // Fetch album if it's a reference
                 if let albumRef = data["album"] as? DocumentReference {
-                    self.fetchAlbum(from: albumRef) { album, error in
-                        song.album = album // Set the resolved album
+                    fetchAlbum(from: albumRef) { [self] albumDTO, albumError in
+                        if let albumDTO = albumDTO {
+                            // Manage album reference separately
+                            print("Fetched album: \(albumDTO)")
+                        }
 
-                        // Fetch artists if present in the song
+                        // Fetch artists if present
                         if let artistRefs = data["artists"] as? [DocumentReference] {
-                            self.fetchArtists(from: artistRefs) { artists, error in
-                                song.artists = artists
-                                completion(song, nil)
+                            fetchArtists(from: artistRefs) { artistDTOs, artistError in
+                                if let artistDTOs = artistDTOs {
+                                    print("Fetched artists: \(artistDTOs)")
+                                }
+                                completion(songDTO, nil) // Return the complete SongDTO
                             }
                         } else {
-                            completion(song, nil)
+                            completion(songDTO, nil) // Return if no artists
                         }
                     }
                 } else {
-                    // If there's no album reference, just return the song
-                    completion(song, nil)
+                    // No album reference, check for artists
+                    if let artistRefs = data["artists"] as? [DocumentReference] {
+                        fetchArtists(from: artistRefs) { artistDTOs, artistError in
+                            if let artistDTOs = artistDTOs {
+                                print("Fetched artists: \(artistDTOs)")
+                            }
+                            completion(songDTO, nil) // Return the complete SongDTO
+                        }
+                    } else {
+                        completion(songDTO, nil) // Return if no album or artists
+                    }
                 }
             } catch let error as DecodingError {
-                // Detailed logging of decoding errors
+                // Handle detailed decoding errors
+                print("Decoding error for song ID \(songId): \(error.localizedDescription)")
                 switch error {
                 case .typeMismatch(let type, let context):
                     print("Type mismatch error: \(type) at \(context.codingPath)")
@@ -89,53 +105,52 @@ class DatabaseManager {
                 }
                 completion(nil, error)
             } catch {
-                // Catch any other errors
-                print("Unknown error: \(error.localizedDescription)")
+                // Handle unexpected errors
+                print("Unexpected error for song ID \(songId): \(error.localizedDescription)")
                 completion(nil, error)
             }
         }
     }
 
-    func fetchAlbum(from albumRef: DocumentReference, completion: @escaping (AlbumDTO?, Error?) -> Void) {
-        albumRef.getDocument { snapshot, error in
+    func fetchAlbum(from ref: DocumentReference, completion: @escaping (AlbumDTO?, Error?) -> Void) {
+        ref.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
+                print("Error fetching album: \(error?.localizedDescription ?? "Unknown error")")
                 completion(nil, error)
                 return
             }
-
+            
             do {
-                let album = try Firestore.Decoder().decode(AlbumDTO.self, from: data)
-                completion(album, nil)
+                let albumDTO = try Firestore.Decoder().decode(AlbumDTO.self, from: data)
+                completion(albumDTO, nil)
             } catch {
+                print("Error decoding album: \(error.localizedDescription)")
                 completion(nil, error)
             }
         }
     }
 
-    func fetchArtists(from artistRefs: [DocumentReference], completion: @escaping ([ArtistDTO], Error?) -> Void) {
+    func fetchArtists(from refs: [DocumentReference], completion: @escaping ([ArtistDTO]?, Error?) -> Void) {
         var artists: [ArtistDTO] = []
-        let dispatchGroup = DispatchGroup()
-
-        for ref in artistRefs {
-            dispatchGroup.enter()
+        let group = DispatchGroup()
+        
+        for ref in refs {
+            group.enter()
             ref.getDocument { snapshot, error in
-                if let error = error {
-                    print("Error fetching artist data for \(ref.path): \(error.localizedDescription)")
-                } else if let data = snapshot?.data() {
-                    do {
-                        let artist = try Firestore.Decoder().decode(ArtistDTO.self, from: data)
-                        artists.append(artist)
-                    } catch {
-                        print("Error decoding artist data for \(ref.path): \(error.localizedDescription)")
+                if let data = snapshot?.data(), error == nil {
+                    if let artistDTO = try? Firestore.Decoder().decode(ArtistDTO.self, from: data) {
+                        artists.append(artistDTO)
+                    } else {
+                        print("Error decoding artist data from \(ref.path)")
                     }
                 } else {
-                    print("Artist document is missing or empty for \(ref.path)")
+                    print("Error fetching artist: \(error?.localizedDescription ?? "Unknown error")")
                 }
-                dispatchGroup.leave()
+                group.leave()
             }
         }
-
-        dispatchGroup.notify(queue: .main) {
+        
+        group.notify(queue: .main) {
             completion(artists, nil)
         }
     }

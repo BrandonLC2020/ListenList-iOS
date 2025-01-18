@@ -16,18 +16,18 @@ struct Song: Identifiable, Hashable {
     var popularity: Int
     var explicit: Bool
 
-    static func create(from dto: SongDTO, id: String, album: Album, completion: @escaping (Song) -> Void) {
-        let song = Song(
-            id: id,
-            album: album,
-            artists: dto.artists.map { ArtistDTO.toArtist(from: $0) },
-            duration_ms: dto.durationMs,
-            name: dto.name,
-            popularity: dto.popularity,
-            explicit: dto.isExplicit
-        )
-        completion(song)
-    }
+//    static func create(from dto: SongDTO, id: String, album: Album, completion: @escaping (Song) -> Void) {
+//        let song = Song(
+//            id: id,
+//            album: album,
+//            artists: dto.artists.map { ArtistDTO.toArtist(from: $0) },
+//            duration_ms: dto.durationMs,
+//            name: dto.name,
+//            popularity: dto.popularity,
+//            explicit: dto.isExplicit
+//        )
+//        completion(song)
+//    }
 }
 
 struct Artist: Identifiable, Hashable {

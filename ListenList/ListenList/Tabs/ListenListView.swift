@@ -20,48 +20,67 @@ struct ListenListView: View {
     }
     
     func fetchSongList() {
-        var songIds = [String]()
+        var songIds: [String] = []
+        isLoading = true // Start loading
+        
+        // Fetch song IDs
         DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
                 print("Error fetching song IDs: \(error.localizedDescription)")
                 self.isLoading = false
-            } else if let documents = documents {
-                for document in documents {
-                    let id = document.documentID
-                    songIds.append(id)
-                }
+                return
+            }
+            
+            guard let documents = documents else {
+                print("No song documents found.")
+                self.isLoading = false
+                return
+            }
+            
+            songIds = documents.map { $0.documentID } // Extract IDs
+            
+            var fetchedSongs: [Song] = []
+            let group = DispatchGroup()
+            
+            // Fetch each song by ID
+            for songId in songIds {
+                group.enter()
                 
-                var fetchedSongs: [Song] = []
-                let group = DispatchGroup()
-                
-                for songId in songIds {
-                    group.enter()
-                    DatabaseManager.shared.fetchSong(withId: songId) { songDTO, error in
-                        if let error = error {
-                            print("Error fetching song with ID \(songId): \(error.localizedDescription)")
-                        } else if let songDTO = songDTO {
-                            if let song = SongDTO.toSong(from: songDTO) { // Safe conversion
-                                fetchedSongs.append(song)
-                            } else {
-                                print("Failed to convert songDTO to Song for ID \(songId).")
-                            }
-                        } else {
-                            print("No songDTO found for ID \(songId).")
-                        }
-                        group.leave()
+                DatabaseManager.shared.fetchSong(withId: songId) { songDTO, error in
+                    defer { group.leave() } // Ensure group leaves even if there's an error
+                    
+                    if let error = error {
+                        print("Error fetching song with ID \(songId): \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let songDTO = songDTO else {
+                        print("No songDTO found for ID \(songId).")
+                        return
+                    }
+                    
+                    if let song = SongDTO.toSong(from: songDTO) { // Convert safely
+                        fetchedSongs.append(song)
+                    } else {
+                        print("Failed to convert songDTO to Song for ID \(songId).")
                     }
                 }
-
-                
-                group.notify(queue: .main) {
-                    // Convert songs to cards
-                    let songCards = fetchedSongs.map { createCard(from: $0) }
-                    self.cards = songCards // Assign to a @State property in your View
-                    self.isLoading = false
-                }
+            }
+            
+            // Notify when all songs are fetched
+            group.notify(queue: .main) {
+                self.updateUI(with: fetchedSongs)
             }
         }
     }
+
+    private func updateUI(with songs: [Song]) {
+        // Convert songs to cards and update the UI
+        self.cards = songs.map { createCard(from: $0) }
+        self.isLoading = false
+        print("Successfully loaded \(songs.count) songs.")
+    }
+
 
     var body: some View {
         NavigationView {
