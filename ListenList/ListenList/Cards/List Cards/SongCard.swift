@@ -54,6 +54,7 @@ struct SongCard: View {
                             case .success(let image):
                                 image.resizable()
                                     .cornerRadius(15.0)
+                                    .scaledToFill()
                             case .failure:
                                 placeholderImage
                             @unknown default:
@@ -113,7 +114,16 @@ struct SongCard: View {
                     }
                     .padding(.trailing)
                     
+
                     Spacer()
+//                    Button(action: addToFirestore) {
+//                        Image(systemName: isSaving || isAlreadySaved ? "checkmark.circle.fill" : "plus.circle")
+//                            .resizable()
+//                            .frame(width: 24, height: 24)
+//                            .foregroundColor(.blue)
+//                    }
+//                    .disabled(isSaving || isAlreadySaved) // Disable while saving
+
                 }
             }
             .frame(maxWidth: 600, maxHeight: maxHeight)

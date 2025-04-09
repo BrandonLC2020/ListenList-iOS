@@ -54,6 +54,7 @@ struct AlbumCard: View {
                             case .success(let image):
                                 image.resizable()
                                     .cornerRadius(15.0)
+                                    .scaledToFill()
                             case .failure:
                                 placeholderImage
                             @unknown default:
