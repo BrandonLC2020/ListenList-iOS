@@ -35,10 +35,9 @@ struct ArtistDTO: Codable {
             let name = data?["name"] as? String ?? ""
             let popularity = data?["popularity"] as? Int ?? 0
             
-            // Assuming the images are stored in an array and need to be mapped to `ImageResponse`
+            // Assuming the images are stored in an array of dictionaries
             let imagesData = data?["images"] as? [[String: Any]] ?? []
             let images = imagesData.compactMap { imageDict -> ImageResponse? in
-                // Map each image dictionary to ImageResponse
                 return ImageDTO.toImageResponse(from: imageDict)
             }
             
@@ -89,9 +88,8 @@ struct AlbumDTO: Codable {
             // Fetch images array (if it's an array of dictionaries that map to `ImageResponse`)
             let imagesData = data?["images"] as? [[String: Any]] ?? []
             let images = imagesData.compactMap { imageDict -> ImageResponse? in
-                // Initialize `ImageResponse` from `imageDict` (assuming it has a `url` field)
-                guard let url = imageDict["url"] as? String else { return nil }
-                return ImageResponse(url: url)
+                // Use the new helper to build an ImageResponse from a dictionary
+                return ImageDTO.toImageResponse(from: imageDict)
             }
             
             let album = Album(
@@ -99,7 +97,7 @@ struct AlbumDTO: Codable {
                 images: images,
                 name: name,
                 release_date: releaseDate,
-                artists: [] // Assuming artists are empty or fetched elsewhere
+                artists: [] // Artists will be fetched asynchronously elsewhere if needed
             )
             
             completion(album)
@@ -144,7 +142,7 @@ struct SongDTO: Codable {
     }
 
     static func toSong(from dto: SongDTO, completion: @escaping (Song?) -> Void) {
-        // Assuming `dto.albumRef` contains the reference to the album document in Firestore
+        // Ensure album reference exists
         guard let albumRef = dto.album else {
             print("Album reference is missing")
             completion(nil)
@@ -163,10 +161,10 @@ struct SongDTO: Codable {
             var artists: [Artist] = []
             let group = DispatchGroup() // To wait for all artists to be fetched
             
-            for artistDTO in dto.artists {
+            for artistRef in dto.artists {
                 group.enter()
                 // Fetch each artist asynchronously using `toArtist`
-                ArtistDTO.toArtist(from: artistDTO) { artist in
+                ArtistDTO.toArtist(from: artistRef) { artist in
                     if let artist = artist {
                         artists.append(artist)
                     }
@@ -176,7 +174,7 @@ struct SongDTO: Codable {
             
             // Wait for all artists to be fetched before proceeding
             group.notify(queue: .main) {
-                // Return the Song object once everything is ready
+                // Create the Song object once everything is ready
                 let song = Song(
                     id: dto.id,
                     album: validAlbum,
@@ -190,7 +188,6 @@ struct SongDTO: Codable {
             }
         }
     }
-
 }
 
 struct ImageDTO: Codable {
@@ -198,6 +195,7 @@ struct ImageDTO: Codable {
     let width: Int
     let url: String
     
+    // Existing asynchronous version using a DocumentReference remains unchanged.
     static func toImageResponse(from ref: DocumentReference, completion: @escaping (ImageResponse?) -> Void) {
         // Fetch the image data asynchronously from Firestore
         ref.getDocument { (document, error) in
@@ -219,13 +217,16 @@ struct ImageDTO: Codable {
             let height = data?["height"] as? Int ?? 0
             let width = data?["width"] as? Int ?? 0
             
-            // Create and return the ImageResponse object
             let imageResponse = ImageResponse(url: url, height: height, width: width)
-            
-            // Return the created ImageResponse object
             completion(imageResponse)
         }
     }
-
+    
+    // New helper to create an ImageResponse from a dictionary (synchronous conversion)
+    static func toImageResponse(from dict: [String: Any]) -> ImageResponse? {
+        guard let url = dict["url"] as? String else { return nil }
+        let height = dict["height"] as? Int
+        let width = dict["width"] as? Int
+        return ImageResponse(url: url, height: height, width: width)
+    }
 }
-

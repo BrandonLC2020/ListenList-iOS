@@ -23,7 +23,7 @@ struct ListenListView: View {
         var songIds: [String] = []
         isLoading = true // Start loading
         
-        // Fetch song IDs
+        // Fetch song IDs – note that the completion closure is provided
         DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
                 print("Error fetching song IDs: \(error.localizedDescription)")
@@ -59,10 +59,13 @@ struct ListenListView: View {
                         return
                     }
                     
-                    if let song = SongDTO.toSong(from: songDTO) { // Convert safely
-                        fetchedSongs.append(song)
-                    } else {
-                        print("Failed to convert songDTO to Song for ID \(songId).")
+                    // Note: SongDTO.toSong now takes a completion block because the conversion is asynchronous
+                    SongDTO.toSong(from: songDTO) { song in
+                        if let song = song {
+                            fetchedSongs.append(song)
+                        } else {
+                            print("Failed to convert songDTO to Song for ID \(songId).")
+                        }
                     }
                 }
             }

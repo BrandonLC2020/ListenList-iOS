@@ -5,7 +5,7 @@
 //  Created by Brandon Lamer-Connolly on 10/11/24.
 //
 
-import Foundation    
+import Foundation
 
 struct Song: Identifiable, Hashable {
     var id: String
@@ -15,19 +15,6 @@ struct Song: Identifiable, Hashable {
     var name: String
     var popularity: Int
     var explicit: Bool
-
-//    static func create(from dto: SongDTO, id: String, album: Album, completion: @escaping (Song) -> Void) {
-//        let song = Song(
-//            id: id,
-//            album: album,
-//            artists: dto.artists.map { ArtistDTO.toArtist(from: $0) },
-//            duration_ms: dto.durationMs,
-//            name: dto.name,
-//            popularity: dto.popularity,
-//            explicit: dto.isExplicit
-//        )
-//        completion(song)
-//    }
 }
 
 struct Artist: Identifiable, Hashable {
@@ -49,20 +36,26 @@ struct Album: Identifiable, Hashable {
 extension Album {
     init?(from dto: AlbumDTO?) {
         guard let dto = dto else { return nil }
-        self.id = UUID().uuidString // Generate or map the ID
-        self.images = dto.images.map { ImageResponse(from: $0) }
+        self.id = dto.id // Use the provided album document ID
+        // Convert the array of image DocumentReferences using the helper in AlbumDTO.toAlbum.
+        // Since we already fetched and converted images inside AlbumDTO.toAlbum, here we assume dto.images have been handled.
+        // For simplicity, we assume that by now the images are available as ImageResponse objects.
+        // If not, you may need to fetch these asynchronously.
+        // Here, we use a simple mapping if possible.
+        self.images = [] // As a placeholder. Alternatively, you can perform a similar mapping as done in AlbumDTO.toAlbum.
         self.name = dto.name
         self.release_date = dto.releaseDate
-        self.artists = dto.artists.map { Artist(from: $0) }
+        self.artists = [] // We cannot synchronously convert [DocumentReference] to [Artist]; fetch these separately.
     }
 }
 
 extension Artist {
     init(from dto: ArtistDTO) {
-        self.id = UUID().uuidString // Generate or map the ID
-        self.images = nil // Add logic if `ArtistDTO` includes image data in the future
+        self.id = dto.id
+        // Here, if dto.images were to be processed further, include the logic.
+        self.images = nil // For now, assign nil or later process the images
         self.name = dto.name
-        self.popularity = nil // Add if `ArtistDTO` includes popularity data
-        self.artistId = UUID().uuidString // Generate or map
+        self.popularity = dto.popularity
+        self.artistId = dto.id
     }
 }
