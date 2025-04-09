@@ -11,7 +11,7 @@ import FirebaseFirestore
 struct ListenListView: View {
     
     @State private var cards: [Card] = [] // Holds the list of cards
-    @State private var songs: [Song] = [] // Use the SwiftUI-compatible Song type
+    @State private var songs: [Song] = []   // Use the SwiftUI-compatible Song type
     @State private var isLoading = true     // Track loading state
     
     func createCard(from song: Song) -> Card {
@@ -23,7 +23,7 @@ struct ListenListView: View {
         var songIds: [String] = []
         isLoading = true // Start loading
         
-        // Fetch song IDs – note that the completion closure is provided
+        // Fetch song IDs
         DatabaseManager.shared.fetchSongIds { documents, error in
             if let error = error {
                 print("Error fetching song IDs: \(error.localizedDescription)")
@@ -42,12 +42,11 @@ struct ListenListView: View {
             var fetchedSongs: [Song] = []
             let group = DispatchGroup()
             
-            // Fetch each song by ID
+            // For each song ID, call fetchSong and then convert the DTO to a Song.
             for songId in songIds {
-                group.enter()
-                
+                group.enter() // Enter group for fetchSong
                 DatabaseManager.shared.fetchSong(withId: songId) { songDTO, error in
-                    defer { group.leave() } // Ensure group leaves even if there's an error
+                    defer { group.leave() } // Mark fetchSong complete regardless
                     
                     if let error = error {
                         print("Error fetching song with ID \(songId): \(error.localizedDescription)")
@@ -59,18 +58,20 @@ struct ListenListView: View {
                         return
                     }
                     
-                    // Note: SongDTO.toSong now takes a completion block because the conversion is asynchronous
+                    // Wait for the asynchronous conversion from SongDTO to Song.
+                    group.enter() // Enter group for SongDTO.toSong
                     SongDTO.toSong(from: songDTO) { song in
                         if let song = song {
                             fetchedSongs.append(song)
                         } else {
                             print("Failed to convert songDTO to Song for ID \(songId).")
                         }
+                        group.leave() // Mark SongDTO.toSong complete
                     }
                 }
             }
             
-            // Notify when all songs are fetched
+            // Notify when all asynchronous operations are finished.
             group.notify(queue: .main) {
                 self.updateUI(with: fetchedSongs)
             }
@@ -78,12 +79,11 @@ struct ListenListView: View {
     }
 
     private func updateUI(with songs: [Song]) {
-        // Convert songs to cards and update the UI
+        // Convert songs to cards and update the UI.
         self.cards = songs.map { createCard(from: $0) }
         self.isLoading = false
         print("Successfully loaded \(songs.count) songs.")
     }
-
 
     var body: some View {
         NavigationView {
@@ -96,8 +96,9 @@ struct ListenListView: View {
                     } else {
                         CardList(results: self.cards)
                     }
-                    Text("song count: \(songs.count)")
-                    Text("card count: \(cards.count)")
+//                    UNCOMMENT BELOW FOR DEBUGGING PURPOSES
+//                    Text("song count: \(songs.count)")
+//                    Text("card count: \(cards.count)")
                 }
             }
             .navigationTitle("Your ListenList")
